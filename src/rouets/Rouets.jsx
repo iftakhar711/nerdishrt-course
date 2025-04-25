@@ -1,4 +1,4 @@
-import { createHashRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Main from "../Layout/Main";
 import Home from "../pages/Home/Home";
 import FAQ from "../pages/FAQ/FAQ";
@@ -11,7 +11,7 @@ import PrivateRoute from "./PrivateRouets";
 import AdminLogin from "../pages/AdminDashboard/AdminLogin";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <Main></Main>,
