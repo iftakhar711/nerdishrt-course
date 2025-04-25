@@ -9,7 +9,7 @@ import Login from "../pages/Registration/Login";
 import Profile from "../pages/Registration/profile";
 import PrivateRoute from "./PrivateRouets";
 import AdminLogin from "../pages/AdminDashboard/AdminLogin";
-import AdminDashboaed from "../pages/AdminDashboard/AdminDashboard";
+import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
