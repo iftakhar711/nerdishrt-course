@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
 
 const Login = () => {
@@ -17,7 +17,7 @@ const Login = () => {
 
   // Auth context and routing
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
+
   const location = useLocation();
 
   // Check for remembered email on component mount
@@ -113,7 +113,7 @@ const Login = () => {
 
       // Redirect to intended page or profile
       const from = location.state?.from?.pathname || "/profile";
-      navigate(from, { replace: true });
+      window.location.replace(from);
     } catch (err) {
       setError(
         err.message || "An unexpected error occurred. Please try again."
