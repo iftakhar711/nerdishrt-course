@@ -34,7 +34,9 @@ const EditCourseForm = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/courses`);
+        const response = await fetch(
+          `https://nerdishrt-course-server.onrender.com/courses`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
@@ -121,13 +123,16 @@ const EditCourseForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/courses/${slug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `https://nerdishrt-course-server.onrender.com/courses/${slug}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update course");

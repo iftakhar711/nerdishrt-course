@@ -12,7 +12,9 @@ const CourseList = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:5000/courses");
+        const response = await fetch(
+          "https://nerdishrt-course-server.onrender.com/courses"
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
@@ -36,7 +38,7 @@ const CourseList = () => {
   const confirmDelete = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/courses/${courseToDelete.slug}`,
+        `https://nerdishrt-course-server.onrender.com/courses/${courseToDelete.slug}`,
         {
           method: "DELETE",
         }

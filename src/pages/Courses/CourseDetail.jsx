@@ -155,7 +155,9 @@ const CourseDetail = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/courses/${slug}`);
+        const response = await fetch(
+          `https://nerdishrt-course-server.onrender.com/courses/${slug}`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch course details");
         }
@@ -230,20 +232,23 @@ const CourseDetail = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/enroll", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userEmail: user.email,
-          courseSlug: slug,
-          phone: formData.phone,
-          location: formData.location,
-          date: formData.date,
-        }),
-      });
+      const response = await fetch(
+        "https://nerdishrt-course-server.onrender.com/enroll",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userEmail: user.email,
+            courseSlug: slug,
+            phone: formData.phone,
+            location: formData.location,
+            date: formData.date,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (data.success) {

@@ -11,7 +11,9 @@ const Courses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:5000/courses");
+        const response = await fetch(
+          "https://nerdishrt-course-server.onrender.com/courses"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

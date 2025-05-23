@@ -11,7 +11,7 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const API_BASE_URL = "http://localhost:5000/api"; // Make sure this matches your backend URL
+const API_BASE_URL = "https://nerdishrt-course-server.onrender.com/api"; // Make sure this matches your backend URL
 
 const EditBlogForm = ({ isEdit = false }) => {
   const navigate = useNavigate();
@@ -138,6 +138,8 @@ const EditBlogForm = ({ isEdit = false }) => {
       }
 
       const data = await response.json();
+      console.log(data);
+
       navigate(`/blog/${formData.slug}`);
     } catch (error) {
       console.error("Error saving blog:", error);

@@ -21,7 +21,9 @@ const DashboardBlogList = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch("http://localhost:5000/blogs");
+        const response = await fetch(
+          "https://nerdishrt-course-server.vercel.app/blogs"
+        );
         const data = await response.json();
         setBlogs(data);
       } catch (error) {
@@ -36,9 +38,12 @@ const DashboardBlogList = () => {
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:5000/blogs/${deleteModal.blogId}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `https://nerdishrt-course-server.onrender.com/blogs/${deleteModal.blogId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       setBlogs(blogs.filter((blog) => blog.slug !== deleteModal.blogId));
       setDeleteModal({ isOpen: false, blogId: null, blogTitle: "" });
