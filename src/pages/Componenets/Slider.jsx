@@ -106,15 +106,17 @@ const SecuritySlider = () => {
                 {/* Text Content */}
                 <div className="space-y-8 relative z-10">
                   <div className="animate-float">
-                    <div className="text-6xl mb-6">{course.badge}</div>
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    <div className="lg:text-6xl md:text-5xl text-4xl mb-3  lg:mb-6">
+                      {course.badge}
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 lgmb-4">
                       {course.title}
                     </h2>
                     <div className="space-y-4">
-                      <p className="text-xl text-white/90 font-mono px-4 py-2 bg-black/30 rounded-lg">
+                      <p className=" text-md lg:text-xl text-white/90 font-mono px-4 py-2 bg-black/30 rounded-lg">
                         {course.code}
                       </p>
-                      <p className="text-lg text-white/80 flex items-center">
+                      <p className="text-sm lg:text-lg text-white/80 flex items-center">
                         <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2" />
                         {course.duration}
                       </p>
@@ -147,7 +149,7 @@ const SecuritySlider = () => {
       </div>
 
       {/* Course List */}
-      <div className="absolute bottom-8 right-8 hidden lg:block">
+      {/* <div className="absolute bottom-8 right-8 hidden lg:block">
         <div className="space-y-2 text-right">
           {courses.map((course, index) => (
             <button
@@ -161,7 +163,7 @@ const SecuritySlider = () => {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Animated Elements */}
       <style jsx global>{`

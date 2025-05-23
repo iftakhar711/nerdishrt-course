@@ -79,7 +79,7 @@ const TopBar = () => {
   return (
     <div
       ref={topBarRef}
-      className="bg-gradient-to-r from-gray-900 to-[#193cb8] text-white py-3 px-4 w-full shadow-lg"
+      className="bg-[#525e75] text-white py-3 px-4 w-full shadow-lg"
     >
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         {/* Contact Info */}
@@ -132,15 +132,6 @@ const TopBar = () => {
             ref={addToSocialRefs}
           >
             <FaInstagram className="text-xl" />
-          </a>
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-blue-400 transition-colors"
-            ref={addToSocialRefs}
-          >
-            <FaLinkedin className="text-xl" />
           </a>
         </div>
       </div>

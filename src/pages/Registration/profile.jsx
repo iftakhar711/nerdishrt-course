@@ -6,7 +6,8 @@ const Profile = () => {
   const { user, logout, refreshUser, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [hoverStates, setHoverStates] = useState({});
+  // Removed hoverStates and related handlers - will use Tailwind hover utilities
+
   const [activeTab, setActiveTab] = useState("courses");
 
   // Check authentication state
@@ -17,170 +18,57 @@ const Profile = () => {
   }, [user, loading, navigate]);
 
   // Refresh user data on mount
+  // Added loading check to prevent refreshing before user is potentially loaded
   useEffect(() => {
-    if (user) refreshUser();
-  }, [refreshUser, user]);
+    if (!loading && user) {
+      refreshUser();
+    }
+  }, [refreshUser, user, loading]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       await logout();
-
+      // Using window.location.href as in the original code
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout error:", error);
+      // Optionally display an error message to the user
     } finally {
       setIsLoggingOut(false);
     }
   };
 
-  const handleMouseEnter = (id) => {
-    setHoverStates((prev) => ({ ...prev, [id]: true }));
-  };
+  // Removed handleMouseEnter, handleMouseLeave, getAnimatedValue
 
-  const handleMouseLeave = (id) => {
-    setHoverStates((prev) => ({ ...prev, [id]: false }));
-  };
-
-  const getAnimatedValue = (id, property, from, to) => {
-    return hoverStates[id]
-      ? { [property]: to, transition: "all 0.3s ease-in-out" }
-      : { [property]: from, transition: "all 0.3s ease-in-out" };
-  };
-
+  // --- Loading State ---
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-        }}
-      >
-        <div
-          style={{
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            border: "5px solid rgba(59, 130, 246, 0.2)",
-            borderTopColor: "#3b82f6",
-            animation: "spin 1s linear infinite",
-            transformOrigin: "center",
-          }}
-        ></div>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        {/* Tailwind spin animation */}
+        <div className="w-14 h-14 rounded-full border-4 border-blue-300 border-t-blue-600 animate-spin"></div>
       </div>
     );
   }
 
-  if (!user) return null;
+  // --- Not Logged In (handled by useEffect, but good defensive check) ---
+  if (!user) {
+    return null; // Or a redirecting message
+  }
 
+  // --- Profile Content ---
   return (
-    <div>
-      {/* Animated background elements */}
-      {/* <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 0,
-          overflow: "hidden",
-        }}
-      >
-        {[...Array(10)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              width: `${Math.random() * 100 + 100}px`,
-              height: `${Math.random() * 100 + 100}px`,
-              borderRadius: "50%",
-              background: `rgba(59, 130, 246, ${Math.random() * 0.05 + 0.02})`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              transform: `translate(-50%, -50%)`,
-              filter: "blur(40px)",
-              animation: `float ${
-                Math.random() * 20 + 10
-              }s infinite alternate ease-in-out`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          ></div>
-        ))}
-      </div> */}
-
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "2rem",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 py-10 px-4 sm:px-6 lg:px-8">
+      {/* Main content container with max width and centering */}
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Profile Header with Glass Morphism */}
-        <div
-          style={{
-            background: "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(10px)",
-            borderRadius: "20px",
-            padding: "2rem",
-            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.1)",
-            border: "1px solid rgba(255, 255, 255, 0.18)",
-            marginBottom: "2rem",
-            textAlign: "center",
-            transform: "translateY(0)",
-            transition: "transform 0.3s ease",
-            ":hover": {
-              transform: "translateY(-5px)",
-            },
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "1.5rem",
-            }}
-          >
-            <div
-              style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "50%",
-                background: "linear-gradient(45deg, #3b82f6, #8b5cf6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: "3rem",
-                fontWeight: "bold",
-                boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.4)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+        <div className="bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-2xl p-6 sm:p-8 shadow-xl border border-white border-opacity-10 mb-8 text-center transform transition duration-300 ease-in-out hover:-translate-y-1">
+          <div className="flex justify-center mb-6">
+            {/* Avatar */}
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl font-bold shadow-xl relative overflow-hidden">
               {user.name?.charAt(0).toUpperCase() || "U"}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "0",
-                  right: "0",
-                  background: "#10b981",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "32px",
-                  height: "32px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "3px solid white",
-                  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                }}
-              >
+              {/* Verified Badge */}
+              <div className="absolute bottom-0 right-0 bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center border-4 border-white shadow-sm">
                 <svg
                   width="16"
                   height="16"
@@ -197,116 +85,45 @@ const Profile = () => {
             </div>
           </div>
 
-          <h1
-            style={{
-              fontSize: "2rem",
-              fontWeight: "700",
-              color: "#1e293b",
-              marginBottom: "0.5rem",
-              background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              display: "inline-block",
-            }}
-          >
+          {/* User Name (Gradient Text) */}
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-1 bg-clip-text  bg-gradient-to-r from-blue-600 to-violet-700 inline-block">
             {user.name}
           </h1>
 
-          <p
-            style={{
-              fontSize: "1.1rem",
-              color: "#64748b",
-              marginBottom: "1.5rem",
-            }}
-          >
-            {user.email}
-          </p>
+          {/* User Email */}
+          <p className="text-lg text-slate-600 mb-6">{user.email}</p>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "1rem",
-            }}
-          >
+          {/* Tab Buttons */}
+          <div className="flex justify-center gap-4">
             <button
               onClick={() => setActiveTab("courses")}
-              style={{
-                padding: "0.5rem 1.5rem",
-                background:
-                  activeTab === "courses"
-                    ? "#3b82f6"
-                    : "rgba(59, 130, 246, 0.1)",
-                color: activeTab === "courses" ? "white" : "#3b82f6",
-                borderRadius: "50px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "600",
-                transition: "all 0.3s ease",
-                boxShadow:
-                  activeTab === "courses"
-                    ? "0 4px 6px -1px rgba(59, 130, 246, 0.3)"
-                    : "none",
-              }}
+              className={`px-6 py-2 rounded-full font-semibold transition duration-300 ease-in-out ${
+                activeTab === "courses"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                  : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+              }`}
             >
               My Courses
             </button>
             <button
               onClick={() => setActiveTab("account")}
-              style={{
-                padding: "0.5rem 1.5rem",
-                background:
-                  activeTab === "account"
-                    ? "#3b82f6"
-                    : "rgba(59, 130, 246, 0.1)",
-                color: activeTab === "account" ? "white" : "#3b82f6",
-                borderRadius: "50px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "600",
-                transition: "all 0.3s ease",
-                boxShadow:
-                  activeTab === "account"
-                    ? "0 4px 6px -1px rgba(59, 130, 246, 0.3)"
-                    : "none",
-              }}
+              className={`px-6 py-2 rounded-full font-semibold transition duration-300 ease-in-out ${
+                activeTab === "account"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                  : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+              }`}
             >
               Account Settings
             </button>
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div
-          style={{
-            display: "flex",
-            gap: "2rem",
-            flexDirection: "column",
-          }}
-        >
+        {/* Main Content Area (Courses or Account Settings) */}
+        <div className="flex flex-col gap-8">
           {/* Courses Section */}
           {activeTab === "courses" && (
-            <div
-              style={{
-                background: "rgba(255, 255, 255, 0.8)",
-                backdropFilter: "blur(10px)",
-                borderRadius: "20px",
-                padding: "2rem",
-                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.18)",
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: "600",
-                  color: "#1e293b",
-                  marginBottom: "1.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
+            <div className="bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-2xl p-6 sm:p-8 shadow-xl border border-white border-opacity-10">
+              <h2 className="text-2xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                 <svg
                   width="24"
                   height="24"
@@ -314,58 +131,23 @@ const Profile = () => {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
                 </svg>
                 Enrolled Courses
               </h2>
 
               {user.courses?.length > 0 ? (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(300px, 1fr))",
-                    gap: "1.5rem",
-                  }}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {user.courses.map((course) => (
                     <div
                       key={course._id}
-                      style={{
-                        background: "white",
-                        borderRadius: "12px",
-                        padding: "1.5rem",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                        border: "1px solid rgba(0, 0, 0, 0.05)",
-                        transition: "all 0.3s ease",
-                        ...getAnimatedValue(
-                          course._id,
-                          "transform",
-                          "scale(1)",
-                          "scale(1.02)"
-                        ),
-                        ...getAnimatedValue(
-                          course._id,
-                          "boxShadow",
-                          "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                          "0 10px 15px -3px rgba(59, 130, 246, 0.2))"
-                        ),
-                      }}
-                      onMouseEnter={() => handleMouseEnter(course._id)}
-                      onMouseLeave={() => handleMouseLeave(course._id)}
+                      className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/20"
+                      // Removed onMouseEnter/onMouseLeave
                     >
-                      <h3
-                        style={{
-                          fontSize: "1.25rem",
-                          fontWeight: "600",
-                          color: "#1e293b",
-                          marginBottom: "0.75rem",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                        }}
-                      >
+                      <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
                         <svg
                           width="20"
                           height="20"
@@ -373,27 +155,17 @@ const Profile = () => {
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <path d="M22 4L12 14.01l-3-3"></path>
                         </svg>
                         {course.title}
                       </h3>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.75rem",
-                          color: "#64748b",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                          }}
-                        >
+                      <div className="flex flex-col gap-3 text-slate-600">
+                        <div className="flex items-center gap-2">
                           <svg
                             width="18"
                             height="18"
@@ -401,19 +173,15 @@ const Profile = () => {
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           >
-                            <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.65A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                           </svg>
                           <span>{course.phone || "Not provided"}</span>
                         </div>
 
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                          }}
-                        >
+                        <div className="flex items-center gap-2">
                           <svg
                             width="18"
                             height="18"
@@ -421,20 +189,16 @@ const Profile = () => {
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           >
-                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
                           </svg>
                           <span>{course.location || "Not specified"}</span>
                         </div>
 
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                          }}
-                        >
+                        <div className="flex items-center gap-2">
                           <svg
                             width="18"
                             height="18"
@@ -442,8 +206,20 @@ const Profile = () => {
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           >
-                            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <rect
+                              x="3"
+                              y="4"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              ry="2"
+                            ></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
                           </svg>
                           <span>
                             {course.date
@@ -463,61 +239,29 @@ const Profile = () => {
                   ))}
                 </div>
               ) : (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "3rem 0",
-                    color: "#64748b",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      margin: "0 auto 1.5rem",
-                      color: "#cbd5e1",
-                      animation: "pulse 2s infinite ease-in-out",
-                    }}
-                  >
+                // Empty State
+                <div className="text-center py-12 text-slate-600">
+                  <div className="w-20 h-20 mx-auto mb-6 text-slate-400 animate-pulse">
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
                     </svg>
                   </div>
-                  <h3
-                    style={{
-                      fontSize: "1.25rem",
-                      fontWeight: "600",
-                      color: "#334155",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">
                     No courses enrolled
                   </h3>
-                  <p style={{ marginBottom: "1.5rem" }}>
-                    You haven't enrolled in any courses yet
+                  <p className="mb-6">
+                    You haven't enrolled in any courses yet.
                   </p>
                   <button
                     onClick={() => navigate("/courses")}
-                    style={{
-                      padding: "0.75rem 1.5rem",
-                      background: "linear-gradient(90deg, #3b82f6, #6366f1)",
-                      color: "white",
-                      borderRadius: "50px",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                      transition: "all 0.3s ease",
-                      boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.3)",
-                      ":hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: "0 10px 15px -3px rgba(59, 130, 246, 0.4)",
-                      },
-                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-violet-700 text-white rounded-full font-semibold transition duration-300 ease-in-out shadow-md shadow-blue-600/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-600/40"
                   >
                     Browse Available Courses
                   </button>
@@ -528,27 +272,8 @@ const Profile = () => {
 
           {/* Account Settings Section */}
           {activeTab === "account" && (
-            <div
-              style={{
-                background: "rgba(255, 255, 255, 0.8)",
-                backdropFilter: "blur(10px)",
-                borderRadius: "20px",
-                padding: "2rem",
-                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.18)",
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: "600",
-                  color: "#1e293b",
-                  marginBottom: "1.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
+            <div className="bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-2xl p-6 sm:p-8 shadow-xl border border-white border-opacity-10">
+              <h2 className="text-2xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                 <svg
                   width="24"
                   height="24"
@@ -556,152 +281,63 @@ const Profile = () => {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.44a2 2 0 0 1-2 2H4.44a2 2 0 0 0-2 2v.44a2 2 0 0 1-2 2v.44a2 2 0 0 0 2 2h.44a2 2 0 0 1 2 2v.44a2 2 0 0 0 2 2h.44a2 2 0 0 1 2 2v.44a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.44a2 2 0 0 1 2-2h.44a2 2 0 0 0 2-2v-.44a2 2 0 0 1 2-2v-.44a2 2 0 0 0-2-2h-.44a2 2 0 0 1-2-2v-.44a2 2 0 0 0-2-2z"></path>
+                  <circle cx="12" cy="12" r="2"></circle>
                 </svg>
                 Account Settings
               </h2>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr",
-                  gap: "1.5rem",
-                  maxWidth: "500px",
-                  margin: "0 auto",
-                }}
-              >
-                <div
-                  style={{
-                    background: "white",
-                    borderRadius: "12px",
-                    padding: "1.5rem",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                    border: "1px solid rgba(0, 0, 0, 0.05)",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1.1rem",
-                      fontWeight: "600",
-                      color: "#1e293b",
-                      marginBottom: "1rem",
-                    }}
-                  >
+              <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
+                {/* Personal Information Card */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4">
                     Personal Information
                   </h3>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr",
-                      gap: "1rem",
-                    }}
-                  >
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label
-                        style={{
-                          display: "block",
-                          fontSize: "0.875rem",
-                          color: "#64748b",
-                          marginBottom: "0.25rem",
-                        }}
-                      >
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         Full Name
                       </label>
-                      <div
-                        style={{
-                          padding: "0.75rem",
-                          background: "#f8fafc",
-                          borderRadius: "8px",
-                          border: "1px solid #e2e8f0",
-                          color: "#334155",
-                        }}
-                      >
+                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-700">
                         {user.name}
                       </div>
                     </div>
 
                     <div>
-                      <label
-                        style={{
-                          display: "block",
-                          fontSize: "0.875rem",
-                          color: "#64748b",
-                          marginBottom: "0.25rem",
-                        }}
-                      >
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         Email Address
                       </label>
-                      <div
-                        style={{
-                          padding: "0.75rem",
-                          background: "#f8fafc",
-                          borderRadius: "8px",
-                          border: "1px solid #e2e8f0",
-                          color: "#334155",
-                        }}
-                      >
+                      <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-700">
                         {user.email}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    background: "white",
-                    borderRadius: "12px",
-                    padding: "1.5rem",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                    border: "1px solid rgba(0, 0, 0, 0.05)",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1.1rem",
-                      fontWeight: "600",
-                      color: "#1e293b",
-                      marginBottom: "1rem",
-                    }}
-                  >
+                {/* Security Card */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4">
                     Security
                   </h3>
 
                   <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      background: isLoggingOut
-                        ? "#f1f5f9"
-                        : "linear-gradient(90deg, #ef4444, #dc2626)",
-                      color: isLoggingOut ? "#64748b" : "white",
-                      borderRadius: "8px",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                      transition: "all 0.3s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.5rem",
-                    }}
+                    className={`w-full py-3 rounded-lg font-semibold transition duration-300 ease-in-out flex items-center justify-center gap-2
+                      ${
+                        isLoggingOut
+                          ? "bg-slate-200 text-slate-600 cursor-not-allowed"
+                          : "bg-gradient-to-r from-red-500 to-rose-600 text-white hover:opacity-90"
+                      }`}
                   >
                     {isLoggingOut ? (
                       <>
-                        <div
-                          style={{
-                            width: "16px",
-                            height: "16px",
-                            border: "2px solid rgba(100, 116, 139, 0.2)",
-                            borderTopColor: "#64748b",
-                            borderRadius: "50%",
-                            animation: "spin 1s linear infinite",
-                          }}
-                        ></div>
+                        {/* Tailwind spin animation */}
+                        <div className="w-4 h-4 border-2 border-slate-400 border-t-slate-600 rounded-full animate-spin"></div>
                         Signing Out...
                       </>
                     ) : (
@@ -713,8 +349,12 @@ const Profile = () => {
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
-                          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                          <polyline points="16 17 21 12 16 7"></polyline>
+                          <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
                         Sign Out
                       </>
@@ -726,21 +366,7 @@ const Profile = () => {
           )}
         </div>
       </div>
-
-      {/* Global Animation Styles */}
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        @keyframes float {
-          from { transform: translate(-50%, -50%); }
-          to { transform: translate(-50%, calc(-50% - 20px)); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.95); }
-        }
-      `}</style>
+      {/* Removed global style tag for animations */}
     </div>
   );
 };

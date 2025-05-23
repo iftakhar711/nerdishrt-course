@@ -4,6 +4,7 @@ import Roadmap from "../Componenets/Roadmap";
 import CourseList from "../Componenets/CourseList";
 import SIATrainingHero from "../Componenets/SIATrainingHero";
 import Testimonial from "../Componenets/Testimonial";
+import BlogList from "../Componenets/BlogList";
 
 const Home = () => {
   return (
@@ -12,6 +13,7 @@ const Home = () => {
       <Roadmap></Roadmap>
       <CourseList></CourseList>
       <SIATrainingHero></SIATrainingHero>
+      {/* <BlogList></BlogList> */}
       <Testimonial></Testimonial>
     </>
   );

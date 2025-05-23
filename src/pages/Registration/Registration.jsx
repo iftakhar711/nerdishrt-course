@@ -91,21 +91,18 @@ const Registration = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            confirmPassword,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          confirmPassword,
+        }),
+      });
 
       const data = await response.json();
 
@@ -115,7 +112,7 @@ const Registration = () => {
 
       // Registration successful
       console.log("Registration successful:", data);
-      navigate("/"); // Redirect to dashboard on success
+      navigate("/login"); // Redirect to dashboard on success
     } catch (err) {
       console.error("Registration error:", err);
       setError(err.message || "Failed to register. Please try again.");
@@ -138,7 +135,7 @@ const Registration = () => {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900 overflow-hidden relative"
+      className="min-h-screen z-30 flex items-center justify-center p-4 bg-[#525e75] overflow-hidden relative"
     >
       {/* Floating course icons background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none"></div>
@@ -285,7 +282,7 @@ const Registration = () => {
                 type="submit"
                 disabled={loading}
                 onMouseMove={handleButtonHover}
-                className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium overflow-hidden relative transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+                className="w-full py-3 px-6 rounded-xl bg-[#6a4c93] text-white font-medium overflow-hidden relative transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
                 style={{
                   transform:
                     "perspective(500px) rotateY(var(--rotate-y)) rotateX(var(--rotate-x))",

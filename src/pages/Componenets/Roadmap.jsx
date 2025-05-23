@@ -6,25 +6,25 @@ const Roadmap = () => {
       title: "Get Qualified",
       description: "99% Pass rate with our expert training",
       icon: "📚",
-      accent: "#7C3AED",
+      accent: "#525e75",
     },
     {
       title: "SIA Licence",
       description: "We handle your application process",
       icon: "🛡️",
-      accent: "#2563EB",
+      accent: "#78938a",
     },
     {
       title: "Fast Certification",
       description: "Accelerated programs available",
       icon: "⚡",
-      accent: "#059669",
+      accent: "#78938a",
     },
     {
       title: "Job Placement",
       description: "Dedicated job support team",
       icon: "💼",
-      accent: "#D97706",
+      accent: "#525e75",
     },
   ];
 
@@ -109,7 +109,7 @@ const Roadmap = () => {
   }, []);
 
   return (
-    <div id="roadmap-container" className="container mx-auto py-12 px-4">
+    <div id="roadmap-container" className="container mx-auto py-8 px-4">
       <div className="flex flex-col md:flex-row items-stretch justify-center gap-4 md:gap-2 relative">
         {steps.map((item, index) => (
           <div

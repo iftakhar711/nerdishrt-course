@@ -82,16 +82,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
 
@@ -124,7 +121,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#525e75] flex items-center justify-center p-4">
       <div
         ref={containerRef}
         className="relative w-full max-w-md bg-white/20 backdrop-blur-lg p-8 sm:p-10 rounded-3xl shadow-2xl border border-white/30 z-10"
@@ -199,7 +196,7 @@ const Login = () => {
             ref={buttonRef}
             type="submit"
             disabled={loading}
-            className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition-all duration-300 ${
+            className={`w-full bg-[#6a4c93] text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition-all duration-300 ${
               loading ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]"
             }`}
           >

@@ -8,58 +8,29 @@ const CourseList = () => {
   const underlineRef = useRef(null);
   const courseRefs = useRef([]);
 
-  const courses = [
-    {
-      id: 1,
-      title: "Door Supervisor Course",
-      icon: "🛡️",
-      color: "from-cyan-900 to-cyan-800",
-      slug: "door-supervisor",
-    },
-    {
-      id: 2,
-      title: "Door Supervisor Refresher",
-      icon: "🔄",
-      color: "from-cyan-900 to-cyan-800",
-      slug: "door-supervisor-refresher",
-    },
-    {
-      id: 3,
-      title: "CCTV Course",
-      icon: "📹",
-      color: "from-cyan-900 to-cyan-800",
-      slug: "cctv-operator",
-    },
-    {
-      id: 4,
-      title: "Emergency First Aid",
-      icon: "🩹",
-      color: "from-cyan-900 to-cyan-800",
-      slug: "first-aid",
-    },
-    {
-      id: 5,
-      title: "Traffic Marshal",
-      icon: "🚧",
-      color: "from-cyan-900 to-cyan-800",
-      slug: "traffic-marshal",
-    },
-    {
-      id: 6,
-      title: "Fire Marshal",
-      icon: "🔥",
-      color: "from-cyan-800 to-cyan-600",
-      slug: "fire-marshal",
-    },
-    {
-      id: 7,
-      title: "Personal Licence",
-      icon: "📜",
-      color: "from-cyan-800 to-cyan-600",
-      slug: "personal-licence",
-    },
-  ];
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [courses, setCourses] = React.useState([]);
 
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/courses");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setCourses(data.courses || []);
+      } catch (err) {
+        console.error("Failed to fetch courses:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+  console.log(error);
   const top = () => {
     window.scrollTo({
       top: 0,
@@ -131,57 +102,60 @@ const CourseList = () => {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="container mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white"
-    >
+    <div ref={containerRef} className="container mx-auto py-8 px-4  bg-white">
       {/* Heading Section */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-4">
         <h1
           ref={headingRef}
-          className="text-4xl md:text-5xl font-extrabold mb-2"
+          className="text-3xl md:text-[44px] font-extrabold mb-2"
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+          <span className="bg-clip-text text-transparent bg-[#6a4c93]">
             Professional Security
           </span>
         </h1>
         <h2
           ref={subheadingRef}
-          className="text-2xl md:text-3xl font-semibold text-gray-700"
+          className="text-xl md:text-2xl font-semibold text-black"
         >
           Training & Certification
         </h2>
         <div
           ref={underlineRef}
-          className="w-32 h-1.5 mt-4 mx-auto bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+          className="w-32 h-1 mt-2 mx-auto bg-[#92ba92] rounded-full"
           style={{ transform: "scaleX(0)", transformOrigin: "left center" }}
         />
       </div>
 
       {/* Courses Grid */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course, index) => (
-          <Link
-            to={`/courses/${course.slug}`}
-            onClick={top}
-            key={course.id}
-            ref={(el) => (courseRefs.current[index] = el)}
-            className={`group relative p-4 rounded-xl border border-gray-200 hover:shadow-lg 
-              transition-all duration-200 overflow-hidden bg-gradient-to-br ${course.color} 
-              hover:brightness-110 text-white`}
-          >
-            <div className="flex items-start space-x-4">
-              <div
-                className="flex-shrink-0 w-14 h-14 rounded-xl bg-white bg-opacity-20 backdrop-blur-sm 
-                flex items-center justify-center text-3xl border-2 border-white border-opacity-30 
-                group-hover:scale-110 transition-transform"
-              >
-                {course.icon}
+        {!loading ? (
+          courses.map((course, index) => (
+            <Link
+              to={`/courses/${course.slug}`}
+              onClick={top}
+              key={course.id}
+              ref={(el) => (courseRefs.current[index] = el)}
+              className="group relative p-4 rounded-xl border border-gray-200 hover:shadow-lg 
+        transition-all duration-200 overflow-hidden bg-[#525e75]
+        hover:brightness-110 text-white"
+            >
+              <div className="flex items-start space-x-4">
+                <div
+                  className="flex-shrink-0 w-14 h-14 rounded-xl bg-white bg-opacity-20 backdrop-blur-sm 
+            flex items-center justify-center text-3xl border-2 border-white border-opacity-30 
+            group-hover:scale-110 transition-transform"
+                >
+                  {course.icon}
+                </div>
+                <h3 className="text-xl font-bold mt-1">{course.title}</h3>
               </div>
-              <h3 className="text-xl font-bold mt-1">{course.title}</h3>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        ) : (
+          <div className="text-center text-white text-lg mt-6">
+            Loading courses...
+          </div>
+        )}
       </div>
     </div>
   );

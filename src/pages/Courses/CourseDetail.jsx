@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
@@ -9,7 +9,6 @@ const CourseDetail = () => {
   const { isAuthenticated, user, refreshUserData } = useContext(AuthContext);
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [isSticky, setIsSticky] = useState(false);
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,8 +20,11 @@ const CourseDetail = () => {
     location: "",
     date: "",
   });
-  const iconRef = useRef(null);
+
+  const heroRef = useRef(null);
   const modalRef = useRef(null);
+  const enrollButtonRef = useRef(null);
+  const courseIconRef = useRef(null);
 
   const locations = [
     "BARKING",
@@ -45,77 +47,121 @@ const CourseDetail = () => {
     "BETHNAL GREEN",
   ];
 
-  const getCourseIcon = () => {
-    if (slug.includes("door")) return "🛡️";
-    if (slug.includes("cctv")) return "📹";
-    if (slug.includes("first-aid")) return "🚑";
-    if (slug.includes("fire")) return "🔥";
-    if (slug.includes("traffic")) return "🚧";
-    if (slug.includes("personal")) return "📜";
-    return "🎓";
+  // Get appropriate icon for course
+
+  // GSAP-like animation helper
+  const animateElement = (
+    element,
+    properties,
+    duration = 0.3,
+    easing = "cubic-bezier(0.4, 0, 0.2, 1)"
+  ) => {
+    if (!element) return;
+
+    element.style.transition = `all ${duration}s ${easing}`;
+    Object.keys(properties).forEach((prop) => {
+      element.style[prop] = properties[prop];
+    });
+
+    return () => {
+      element.style.transition = "";
+      Object.keys(properties).forEach((prop) => {
+        element.style[prop] = "";
+      });
+    };
   };
 
-  const animateIcon = () => {
-    if (iconRef.current) {
-      iconRef.current.style.transform = "scale(1.1)";
-      iconRef.current.style.transition =
-        "transform 0.3s ease, rotate 0.5s ease";
+  // Animate course icon
+  const animateCourseIcon = () => {
+    if (!courseIconRef.current) return;
 
-      setTimeout(() => {
-        if (iconRef.current) {
-          iconRef.current.style.transform = "scale(1)";
-          iconRef.current.style.rotate = "5deg";
-        }
-      }, 300);
+    const icon = courseIconRef.current;
+    animateElement(icon, { transform: "scale(1.1) rotate(5deg)" }, 0.2);
 
-      setTimeout(() => {
-        if (iconRef.current) {
-          iconRef.current.style.rotate = "0deg";
-        }
-      }, 800);
-    }
+    setTimeout(() => {
+      animateElement(icon, { transform: "scale(1) rotate(0)" }, 0.3);
+    }, 200);
   };
 
-  const animateModalIn = () => {
-    if (modalRef.current) {
-      modalRef.current.style.opacity = "0";
-      modalRef.current.style.transform = "translateY(20px)";
-      modalRef.current.style.transition =
-        "opacity 0.3s ease, transform 0.3s ease";
+  // Animate enroll button
+  const animateEnrollButton = () => {
+    if (!enrollButtonRef.current) return;
 
-      setTimeout(() => {
-        if (modalRef.current) {
-          modalRef.current.style.opacity = "1";
-          modalRef.current.style.transform = "translateY(0)";
-        }
-      }, 10);
-    }
+    const button = enrollButtonRef.current;
+    animateElement(button, { transform: "scale(0.95)" }, 0.1);
+
+    setTimeout(() => {
+      animateElement(button, { transform: "scale(1)" }, 0.2);
+    }, 100);
   };
+
+  // Modal animations
+  const animateModalIn = useCallback(() => {
+    if (!modalRef.current) return;
+
+    const modal = modalRef.current;
+    modal.style.opacity = "0";
+    modal.style.transform = "translateY(20px) scale(0.98)";
+    modal.style.transition = "none";
+
+    // Force reflow
+    modal.getBoundingClientRect();
+
+    animateElement(
+      modal,
+      {
+        opacity: "1",
+        transform: "translateY(0) scale(1)",
+      },
+      0.3,
+      "cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+    );
+  }, []);
 
   const animateModalOut = (callback) => {
-    if (modalRef.current) {
-      modalRef.current.style.opacity = "0";
-      modalRef.current.style.transform = "translateY(20px)";
+    if (!modalRef.current) return callback();
 
-      setTimeout(() => {
-        callback();
-      }, 300);
-    } else {
+    const modal = modalRef.current;
+    animateElement(
+      modal,
+      {
+        opacity: "0",
+        transform: "translateY(20px) scale(0.98)",
+      },
+      0.2
+    );
+
+    setTimeout(() => {
       callback();
-    }
+    }, 200);
   };
 
+  // Parallax effect for hero section
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroRef.current) {
+        const scrollPosition = window.scrollY;
+        heroRef.current.style.transform = `translateY(${
+          scrollPosition * 0.3
+        }px)`;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Fetch course data
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(
-          `https://nerdishrt-course-server.onrender.com/courses/${slug}`
-        );
+        const response = await fetch(`http://localhost:5000/courses/${slug}`);
         if (!response.ok) {
           throw new Error("Failed to fetch course details");
         }
         const data = await response.json();
         setCourse(data.course);
+        console.log(data.course);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -126,6 +172,7 @@ const CourseDetail = () => {
     fetchCourse();
   }, [slug]);
 
+  // Check if user is enrolled
   useEffect(() => {
     if (user?.courses) {
       const enrolled = user.courses.some((c) => c.slug === slug);
@@ -133,25 +180,19 @@ const CourseDetail = () => {
     }
   }, [user, slug]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 200);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
+  // Handle modal open/close effects
   useEffect(() => {
     if (showEnrollModal || showLoginPrompt) {
-      animateModalIn();
       document.body.style.overflow = "hidden";
+      animateModalIn();
     } else {
       document.body.style.overflow = "auto";
     }
-  }, [showEnrollModal, showLoginPrompt]);
-
+  }, [showEnrollModal, showLoginPrompt, animateModalIn]);
   const handleEnrollClick = () => {
-    animateIcon();
+    animateEnrollButton();
+    animateCourseIcon();
+
     if (isAuthenticated()) {
       setFormData({
         name: user.name || "",
@@ -189,23 +230,20 @@ const CourseDetail = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/enroll",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            userEmail: user.email,
-            courseSlug: slug,
-            phone: formData.phone, // Changed from number to phone
-            location: formData.location,
-            date: formData.date,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/enroll", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userEmail: user.email,
+          courseSlug: slug,
+          phone: formData.phone,
+          location: formData.location,
+          date: formData.date,
+        }),
+      });
 
       const data = await response.json();
       if (data.success) {
@@ -220,50 +258,73 @@ const CourseDetail = () => {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-lg">Loading course details...</p>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center space-y-4">
+          <div className="relative w-20 h-20 mx-auto">
+            <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+            <div className="absolute inset-2 rounded-full border-4 border-blue-300 border-b-transparent animate-spin-reverse"></div>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-700">
+            Loading Course
+          </h3>
+          <p className="text-gray-500">Getting everything ready for you...</p>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center py-8 max-w-md mx-auto">
-          <span className="text-5xl mb-4">⚠️</span>
-          <h2 className="text-2xl font-bold text-red-500 mb-2">Error</h2>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center max-w-md mx-4 p-6 bg-white rounded-2xl shadow-xl">
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-red-100 rounded-full text-red-500 text-3xl">
+            ⚠️
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Error Loading Course
+          </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             to="/courses"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
           >
-            Back to courses
+            Back to Courses
           </Link>
         </div>
       </div>
     );
   }
 
+  // Course not found
   if (!course) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center py-8">
-          <span className="text-5xl mb-4">🔍</span>
-          <h2 className="text-2xl font-bold text-gray-700">Course not found</h2>
-          <p className="text-gray-500 mt-2">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center max-w-md mx-4 p-6 bg-white rounded-2xl shadow-xl">
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-500 text-3xl">
+            🔍
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Course Not Found
+          </h2>
+          <p className="text-gray-600 mb-6">
             The course you're looking for doesn't exist or has been removed.
           </p>
-          <div className="mt-6">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/courses"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg text-center"
             >
-              Browse available courses
+              Browse Courses
+            </Link>
+            <Link
+              to="/"
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all shadow-sm hover:shadow text-center"
+            >
+              Go Home
             </Link>
           </div>
         </div>
@@ -272,38 +333,75 @@ const CourseDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Course Header */}
-      <div className="relative bg-gradient-to-r from-blue-800 to-blue-600 text-white py-16 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-14">
+      {/* Hero Section with Parallax Effect */}
+      <div
+        ref={heroRef}
+        className="relative overflow-hidden bg-[#525E75] text-white"
+        style={{
+          clipPath: "polygon(0 0, 100% 0, 100% 90%, 0 100%)",
+          paddingBottom: "8rem",
+          marginBottom: "-4rem",
+        }}
+      >
+        {/* Animated background elements */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-20"></div>
-        </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+          {[...Array(20)].map((_, i) => (
             <div
-              ref={iconRef}
-              className="bg-white bg-opacity-20 p-4 rounded-full mb-4 md:mb-0 text-4xl cursor-pointer hover:bg-opacity-30 transition-all"
-              onClick={animateIcon}
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                opacity: Math.random() * 0.3 + 0.1,
+                transform: `scale(${Math.random() + 0.5})`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-16 pb-24">
+          <div className="flex flex-col lg:flex-row items-start gap-8">
+            {/* Course Icon */}
+            <div
+              ref={courseIconRef}
+              className="bg-white bg-opacity-20 p-5 rounded-2xl backdrop-blur-sm cursor-pointer hover:bg-opacity-30 transition-all"
+              onClick={animateCourseIcon}
+              style={{
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+              }}
             >
-              {getCourseIcon()}
+              <span className="text-5xl">{course.icon}</span>
             </div>
+
+            {/* Course Info */}
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {course.title}
-              </h1>
-              <p className="text-blue-100 mb-4">{course.short_description}</p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <span className="inline-flex items-center px-3 py-1 bg-blue-700 bg-opacity-30 rounded-full text-sm">
-                  ⏱️ {course.duration}
-                </span>
-                <span className="inline-flex items-center px-3 py-1 bg-blue-700 bg-opacity-30 rounded-full text-sm">
-                  💰 {course.fee}
-                </span>
-                {course.certification && (
-                  <span className="inline-flex items-center px-3 py-1 bg-blue-700 bg-opacity-30 rounded-full text-sm">
-                    🏆 {course.certification}
+              <div className="max-w-3xl">
+                <div className="inline-block px-3 py-1 bg-white text-black bg-opacity-20 rounded-full mb-4 text-sm font-medium backdrop-blur-sm">
+                  {course.category || "Professional Training"}
+                </div>
+                <h1 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+                  {course.title}
+                </h1>
+                {/* <p className="text-xl text-blue-100 mb-6">
+                  {course.short_description}
+                </p> */}
+
+                <div className="flex flex-wrap gap-3">
+                  <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
+                    ⏱️ {course.duration}
                   </span>
-                )}
+                  <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
+                    💰 {course.fee}
+                  </span>
+                  {/* {course.certification && (
+                    <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
+                      🏆 {course.certification}
+                    </span>
+                  )} */}
+                </div>
               </div>
             </div>
           </div>
@@ -311,232 +409,341 @@ const CourseDetail = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Course Details */}
-          <div className="lg:w-2/3 space-y-6">
-            {/* Course Overview Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <span className="text-blue-600 text-xl">📚</span>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Course Overview
-                </h2>
-              </div>
-              <div className="prose max-w-none text-gray-600">
-                <p className="mb-4">{course.description}</p>
-
-                <h3 className="text-xl font-semibold mt-6 mb-3 text-gray-800">
-                  Entry Requirements
-                </h3>
-                <p>{course.entry_requirement}</p>
-              </div>
-            </div>
-
-            {/* What You'll Learn Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-green-100 p-2 rounded-lg">
-                  <span className="text-green-600 text-xl">🎯</span>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  What You'll Learn
-                </h2>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                {Array.isArray(course.content) ? (
-                  course.content.map((item, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <span className="text-green-500 mt-1">✓</span>
-                      <span className="text-gray-700">{item}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-600">
-                    Course content details coming soon
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Course Modules Section */}
-            {course.modules && (
-              <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <span className="text-purple-600 text-xl">📦</span>
+          <div className="lg:w-2/3 space-y-8">
+            {/* Course Overview */}
+            <div
+              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
+              style={{
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl text-blue-600 text-xl">
+                    📚
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    Course Modules
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                    Course Overview
                   </h2>
                 </div>
+                <div className="prose max-w-none text-gray-600 space-y-4">
+                  <p>{course.description}</p>
+
+                  <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
+                    What You'll Achieve
+                  </h3>
+                  <ul className="space-y-3">
+                    {course.outcomes?.map((outcome, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="text-blue-500 mt-1">✓</span>
+                        <span>{outcome}</span>
+                      </li>
+                    )) || (
+                      <li className="text-gray-500  font-semibold">
+                        Officially recognised Security Industry Authority (SIA)
+                        licence
+                      </li>
+                    )}
+                  </ul>
+
+                  <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
+                    Entry Requirements
+                  </h3>
+                  <p className="text-gray-500  font-semibold">
+                    {course.entryRequirement || "No specific requirements"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Content */}
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-xl text-green-600 text-xl">
+                    🎯
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                    Course Content
+                  </h2>
+                </div>
+
                 <div className="space-y-4">
-                  {course.modules.map((module, index) => (
-                    <div
-                      key={index}
-                      className="border-l-4 border-blue-500 pl-4 py-2"
-                    >
-                      <h3 className="font-semibold text-lg text-gray-800">
-                        {module.title}
-                      </h3>
-                      <p className="text-gray-600">{module.description}</p>
-                      {module.duration && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          Duration: {module.duration}
-                        </p>
-                      )}
+                  {Array.isArray(course.content) ? (
+                    course.content.map((item, index) => (
+                      <div
+                        key={index}
+                        className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
+                            {index + 1}
+                          </div>
+                          <h3 className="font-medium text-gray-800">{item}</h3>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Detailed curriculum coming soon
                     </div>
-                  ))}
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Course Modules */}
+            {course.modules && course.modules.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-6 sm:p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-xl">
+                      📦
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                      Detailed Modules
+                    </h2>
+                  </div>
+
+                  <div className="space-y-6">
+                    {course.modules.map((module, index) => (
+                      <div
+                        key={index}
+                        className="border-l-4 border-blue-500 pl-5 py-2"
+                      >
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                          {module.title}
+                        </h3>
+                        <p className="text-gray-600 mb-3">
+                          {module.description}
+                        </p>
+                        {module.duration && (
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <span>⏱️</span>
+                            <span>Duration: {module.duration}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* FAQ Section */}
             {course.faq && course.faq.length > 0 && (
-              <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-yellow-100 p-2 rounded-lg">
-                    <span className="text-yellow-600 text-xl">❓</span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    Frequently Asked Questions
-                  </h2>
-                </div>
-                <div className="space-y-4">
-                  {course.faq.map((item, index) => (
-                    <div
-                      key={index}
-                      className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-                    >
-                      <h3 className="font-semibold text-lg text-gray-700">
-                        {item.question}
-                      </h3>
-                      <p className="text-gray-600 mt-2">{item.answer}</p>
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-6 sm:p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 flex items-center justify-center bg-yellow-100 rounded-xl text-yellow-600 text-xl">
+                      ❓
                     </div>
-                  ))}
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                      Frequently Asked Questions
+                    </h2>
+                  </div>
+
+                  <div className="space-y-4">
+                    {course.faq.map((item, index) => (
+                      <div key={index} className="group">
+                        <div className="p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                          <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                            {item.question}
+                          </h3>
+                          <p className="text-gray-600 mt-2">{item.answer}</p>
+                        </div>
+                        {index < course.faq.length - 1 && (
+                          <div className="h-px bg-gray-100 w-full"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
           {/* Sidebar */}
-          <div className={`lg:w-1/3 ${isSticky ? "lg:sticky lg:top-4" : ""}`}>
+          <div className="lg:w-1/3 space-y-6 lg:sticky lg:top-6 lg:h-fit lg:pb-8">
             {/* Enrollment Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 transform transition-all hover:shadow-xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <span className="text-blue-600 text-xl">✏️</span>
-                </div>
-                <h2 className="text-xl font-bold text-gray-800">Enroll Now</h2>
-              </div>
-
-              <div className="space-y-6">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <p className="text-sm text-gray-600">Course Fee</p>
-                  <p className="text-2xl font-bold text-blue-700">
-                    {course.fee}
-                  </p>
-                  {course.discount && (
-                    <p className="text-sm text-green-600 mt-1">
-                      Special offer: {course.discount}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleEnrollClick}
-                  disabled={isEnrolled}
-                  className={`w-full py-3 bg-gradient-to-r ${
-                    isEnrolled
-                      ? "from-green-600 to-green-500 cursor-not-allowed"
-                      : "from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
-                  } text-white rounded-lg transition-all flex items-center justify-center font-medium gap-2`}
-                >
-                  {isEnrolled ? "Already Enrolled ✓" : "Enroll Now →"}
-                </button>
-
-                <div className="text-sm space-y-3 text-gray-600">
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-1">
-                      <span>🪪</span>
-                      <span>SIA License Fee:</span>
-                    </span>
-                    <span className="font-medium">
-                      {course.sia_licence_fee || "Not applicable"}
-                    </span>
+            <div
+              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
+              style={{
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl text-blue-600 text-xl">
+                    ✏️
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-1">
-                      <span>💸</span>
-                      <span>Additional Charges:</span>
-                    </span>
-                    <span className="font-medium">
-                      {course.additional_charges || "None"}
-                    </span>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Enroll Now
+                  </h2>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="bg-[#525E75] p-5 rounded-xl text-white">
+                    <p className="text-sm opacity-90">Total Course Fee</p>
+                    <p className="text-3xl font-bold mb-1">£{course.fee}</p>
+                    {course.discount && (
+                      <p className="text-sm bg-white bg-opacity-20 inline-block px-2 py-1 rounded-md">
+                        {course.discount}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    ref={enrollButtonRef}
+                    onClick={handleEnrollClick}
+                    disabled={isEnrolled}
+                    className={`w-full py-4 rounded-xl  font-bold text-lg transition-all duration-300 ${
+                      isEnrolled
+                        ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg cursor-not-allowed"
+                        : "bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white shadow-lg hover:shadow-xl active:scale-95"
+                    }`}
+                  >
+                    {isEnrolled ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Enrolled Successfully
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="8.5" cy="7" r="4"></circle>
+                          <line x1="20" y1="8" x2="20" y2="14"></line>
+                          <line x1="23" y1="11" x2="17" y2="11"></line>
+                        </svg>
+                        Enroll Now
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="space-y-3 text-sm text-gray-600">
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="flex items-center gap-2">
+                        <span className="text-gray-400">💳</span>
+                        <span>SIA License Fee:</span>
+                      </span>
+                      <span className="font-medium">
+                        £{course.siaLicenceFee || "Not applicable"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="flex items-center gap-2">
+                        <span className="text-gray-400">💸</span>
+                        <span>Additional Charges:</span>
+                      </span>
+                      <span className="font-medium">
+                        £{course.additionalCharges || "None"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="flex items-center gap-2">
+                        <span className="text-gray-400">📅</span>
+                        <span>Next Start Date:</span>
+                      </span>
+                      <span className="font-medium">
+                        {course.next_start_date || "Flexible"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Requirements Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 mt-6 border border-gray-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-green-100 p-2 rounded-lg">
-                  <span className="text-green-600 text-xl">✅</span>
-                </div>
-                <h2 className="text-xl font-bold text-gray-800">
-                  Requirements
-                </h2>
-              </div>
-
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">✓</span>
-                  <span className="text-gray-700">
-                    Minimum age: {course.minimum_age || "18"} years
-                  </span>
-                </li>
-                {course.entry_requirement && (
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span className="text-gray-700">
-                      {course.entry_requirement}
-                    </span>
-                  </li>
-                )}
-                {course.materials && (
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span className="text-gray-700">
-                      Required materials: {course.materials}
-                    </span>
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Course Benefits */}
-            {course.benefits && (
-              <div className="bg-white rounded-xl shadow-md p-6 mt-6 border border-gray-100">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <span className="text-purple-600 text-xl">🌟</span>
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-xl text-green-600 text-xl">
+                    ✅
                   </div>
-                  <h2 className="text-xl font-bold text-gray-800">
-                    Key Benefits
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Requirements
                   </h2>
                 </div>
 
                 <ul className="space-y-3">
-                  {course.benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-purple-500 mt-1">•</span>
-                      <span className="text-gray-700">{benefit}</span>
+                  <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-700">
+                      Minimum age: {course.minimum_age || "18"} years
+                    </span>
+                  </li>
+                  {course.entryRequirement && (
+                    <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span className="text-gray-700">
+                        {course.entryRequirement}
+                      </span>
                     </li>
-                  ))}
+                  )}
+                  {course.materials && (
+                    <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span className="text-gray-700">
+                        Required materials: {course.materials}
+                      </span>
+                    </li>
+                  )}
                 </ul>
+              </div>
+            </div>
+
+            {/* Benefits Card */}
+            {course.benefits && course.benefits.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-6 sm:p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-xl">
+                      🌟
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Key Benefits
+                    </h2>
+                  </div>
+
+                  <ul className="space-y-3">
+                    {course.benefits.map((benefit, index) => (
+                      <li
+                        key={index}
+                        className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <span className="text-purple-500 mt-0.5">•</span>
+                        <span className="text-gray-700">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>
@@ -544,262 +751,374 @@ const CourseDetail = () => {
       </div>
 
       {/* Enroll Modal */}
-      {/* Enroll Modal */}
-      {/* Enroll Modal */}
       {showEnrollModal && (
-        <div className="fixed inset-0 bg-transparent backdrop-blur flex items-center justify-center mx-auto px-2 sm:px-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div
             ref={modalRef}
-            className="bg-white grid mx-auto rounded-xl w-full lg:max-w-md max-w-sm  lg:mx-4 lg:p-6 p-2 shadow-2xl overflow-y-auto max-h-[90vh] animate-slideUp"
+            className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all"
             style={{
-              animation: "slideUp 0.3s ease-out forwards",
+              opacity: 0,
+              transform: "translateY(20px) scale(0.98)",
             }}
           >
-            <div className="flex justify-between items-center mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-2">
-                <span className="text-blue-500">✍️</span>
-                Enroll in {course.title}
-              </h3>
-              <button
-                onClick={closeModals}
-                className="text-gray-500 hover:text-gray-700 transition-colors text-xl p-1 -mr-1"
-                aria-label="Close modal"
-              >
-                &times;
-              </button>
+            <div className="relative">
+              {/* Modal header with gradient */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Enroll in {course.title}
+                  </h3>
+                  <button
+                    onClick={closeModals}
+                    className="text-white hover:text-gray-200 transition-colors text-2xl p-1 -mr-1"
+                    aria-label="Close modal"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <p className="text-blue-100 mt-1 text-sm">
+                  Complete your enrollment details
+                </p>
+              </div>
+
+              {/* Modal body */}
+              <form className="p-6 space-y-4" onSubmit={handleSubmit}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      required
+                      placeholder="John Doe"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      name="email"
+                      disabled
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100 transition-all"
+                      required
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      required
+                      placeholder="+44 123 456 7890"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Location
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none transition-all"
+                      required
+                    >
+                      <option value="">Select a location</option>
+                      {locations.map((loc, index) => (
+                        <option key={index} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Date
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      required
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect
+                          x="3"
+                          y="4"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  Complete Enrollment
+                </button>
+              </form>
             </div>
-
-            <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label className=" text-sm sm:text-base font-medium mb-1 text-gray-700 flex items-center gap-1">
-                  <span className="text-gray-500">👤</span>
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className=" text-sm sm:text-base font-medium mb-1 text-gray-700 flex items-center gap-1">
-                  <span className="text-gray-500">✉️</span>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  disabled
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base bg-gray-100"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className=" text-sm sm:text-base font-medium mb-1 text-gray-700 flex items-center gap-1">
-                  <span className="text-gray-500">📞</span>
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className=" text-sm sm:text-base font-medium mb-1 text-gray-700 flex items-center gap-1">
-                  <span className="text-gray-500">📍</span>
-                  Preferred Location
-                </label>
-                <select
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNoZXZyb24tZG93biI+PHBhdGggZD0ibTYgOSA2IDYgNi02Ii8+PC9zdmc+')] bg-no-repeat bg-[center_right_0.5rem]"
-                  required
-                >
-                  <option value="">Select a location</option>
-                  {locations.map((loc, index) => (
-                    <option key={index} value={loc}>
-                      {loc}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className=" text-sm sm:text-base font-medium mb-1 text-gray-700 flex items-center gap-1">
-                  <span className="text-gray-500">📅</span>
-                  Preferred Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  min={new Date().toISOString().split("T")[0]}
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all font-medium text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Complete Enrollment
-              </button>
-            </form>
           </div>
         </div>
       )}
 
       {/* Login Prompt Modal */}
       {showLoginPrompt && (
-        <div className="fixed inset-0 bg-transparent flex items-center justify-center px-2 sm:px-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div
             ref={modalRef}
-            className="bg-white rounded-xl w-full max-w-md sm:max-w-lg mx-2 sm:mx-4 p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh] animate-slideUp"
+            className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all"
             style={{
-              animation: "slideUp 0.3s ease-out forwards",
+              opacity: 0,
+              transform: "translateY(20px) scale(0.98)",
             }}
           >
-            <div className="flex justify-between items-center mb-4 sm:mb-6">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="bg-yellow-100 p-2 rounded-lg">
-                  <span className="text-yellow-600 text-lg sm:text-xl">🔒</span>
+            <div className="relative">
+              {/* Modal header with gradient */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    Login Required
+                  </h3>
+                  <button
+                    onClick={closeModals}
+                    className="text-white hover:text-gray-200   transition-colors text-2xl p-1 -mr-1"
+                    aria-label="Close modal"
+                  >
+                    &times;
+                  </button>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
-                  Login Required
-                </h3>
-              </div>
-              <button
-                onClick={closeModals}
-                className="text-gray-500 hover:text-gray-700 transition-colors text-xl p-1 -mr-1"
-                aria-label="Close modal"
-              >
-                &times;
-              </button>
-            </div>
-
-            <div className="mb-4 sm:mb-6">
-              <p className="text-gray-600 text-sm sm:text-base">
-                You need to login to enroll in this course. Please login or
-                create an account to continue.
-              </p>
-              <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="text-blue-700 font-medium text-sm sm:text-base">
-                  {course.title}
+                <p className="text-blue-100 mt-1 text-sm">
+                  Please login to enroll in this course
                 </p>
-                <p className="text-xs sm:text-sm text-blue-600">{course.fee}</p>
               </div>
-            </div>
 
-            <div className="flex flex-col gap-2 sm:gap-3">
-              <button
-                onClick={handleLoginRedirect}
-                className="w-full py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all font-medium text-sm sm:text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                  <polyline points="10 17 15 12 10 7"></polyline>
-                  <line x1="15" y1="12" x2="3" y2="12"></line>
-                </svg>
-                Login to Enroll
-              </button>
-              <div className="flex items-center gap-2 my-1">
-                <div className="flex-1 h-px bg-gray-200"></div>
-                <span className="text-xs sm:text-sm text-gray-500 px-1">
-                  OR
-                </span>
-                <div className="flex-1 h-px bg-gray-200"></div>
+              {/* Modal body */}
+              <div className="p-6 space-y-6">
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <h4 className="font-bold text-blue-800">{course.title}</h4>
+                  <p className="text-blue-600 mt-1">{course.fee}</p>
+                </div>
+
+                <p className="text-gray-600 text-center">
+                  You need to login to enroll in this course. Please login or
+                  create an account to continue.
+                </p>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={handleLoginRedirect}
+                    className="w-full py-4 bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    Login to Continue
+                  </button>
+
+                  <div className="flex items-center my-2">
+                    <div className="flex-1 border-t border-gray-200"></div>
+                    <span className="px-3 text-sm text-gray-500">OR</span>
+                    <div className="flex-1 border-t border-gray-200"></div>
+                  </div>
+
+                  <Link
+                    to="/registration"
+                    onClick={closeModals}
+                    className="w-full py-3 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl font-medium transition-all shadow-sm hover:shadow active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Create New Account
+                  </Link>
+                </div>
               </div>
-              <Link
-                to="/registration"
-                className="w-full py-2 sm:py-3 text-center bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm hover:shadow active:scale-[0.98]"
-                onClick={closeModals}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Create New Account
-              </Link>
             </div>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out forwards;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       if (token && userEmail) {
         try {
           const response = await fetch(
-            `https://nerdishrt-course-server.onrender.com/users/${userEmail}`
+            `http://localhost:5000/users/${userEmail}`
           );
           const data = await response.json();
 

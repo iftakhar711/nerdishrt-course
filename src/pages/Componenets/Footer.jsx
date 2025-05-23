@@ -47,13 +47,13 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-slate-900 text-white pt-10 pb-6">
+    <footer className="bg-gray-50 text-white pt-6 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Contact Form */}
           <div className="animate-slideUp">
             <h3
-              className="text-2xl font-bold mb-4 text-cyan-400 relative pb-2 
+              className="text-2xl font-bold mb-4 text-black relative pb-2 
               after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-cyan-400 after:animate-underline"
             >
               Get in Touch
@@ -63,7 +63,7 @@ const Footer = () => {
                 <input
                   type="text"
                   placeholder="Name"
-                  className="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 
+                  className="w-full p-2.5 rounded-md bg-[#525e75] border border-gray-600 
                     focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 
                     transition-all duration-300"
                   value={formData.name}
@@ -77,7 +77,7 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 
+                  className="w-full p-2.5 rounded-md bg-[#525e75] border border-gray-600 
                     focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 
                     transition-all duration-300"
                   value={formData.email}
@@ -89,7 +89,7 @@ const Footer = () => {
                 <input
                   type="tel"
                   placeholder="Phone"
-                  className="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 
+                  className="w-full p-2.5 rounded-md bg-[#525e75] border border-gray-600 
                     focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 
                     transition-all duration-300"
                   value={formData.phone}
@@ -101,7 +101,7 @@ const Footer = () => {
               </div>
               <textarea
                 placeholder="Your Message..."
-                className="w-full p-2.5 rounded-md bg-gray-700 border border-gray-600 
+                className="w-full p-2.5 rounded-md bg-[#525e75] border border-gray-600 
                   focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 
                   transition-all duration-300"
                 rows={3}
@@ -113,7 +113,7 @@ const Footer = () => {
               ></textarea>
               <button
                 type="submit"
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold 
+                className="w-full bg-[#6a4c93] hover:bg-cyan-600 text-white font-semibold 
                   px-6 py-2.5 rounded-md transition-all duration-300 transform hover:scale-[1.02] 
                   shadow-lg hover:shadow-cyan-500/20"
               >
@@ -125,7 +125,7 @@ const Footer = () => {
           {/* Training Venues */}
           <div className="animate-slideUp delay-100">
             <h3
-              className="text-2xl font-bold mb-4 text-cyan-400 relative pb-2 
+              className="text-2xl font-bold mb-4 text-black relative pb-2 
               after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-cyan-400 after:animate-underline"
             >
               Training Centers
@@ -134,7 +134,7 @@ const Footer = () => {
               {trainingVenues.slice(0, visibleVenues).map((venue, index) => (
                 <div
                   key={index}
-                  className="p-2 text-sm bg-gray-700 rounded-md hover:bg-cyan-500 
+                  className="p-2 text-sm bg-[#525e75] rounded-md hover:bg-cyan-500 
                     transition-all duration-300 cursor-pointer transform hover:scale-[1.02] 
                     flex items-center"
                 >
@@ -148,7 +148,7 @@ const Footer = () => {
                     prev === 8 ? trainingVenues.length : 8
                   )
                 }
-                className="col-span-2 text-cyan-400 hover:text-cyan-300 text-sm mt-2 
+                className="col-span-2 text-black hover:text-cyan-300 text-sm mt-2 
                    duration-300"
               >
                 {visibleVenues === 8 ? "Show All Locations →" : "Show Less"}
@@ -159,13 +159,13 @@ const Footer = () => {
           {/* Quick Links & Contact */}
           <div className="animate-slideUp delay-200">
             <h3
-              className="text-2xl font-bold mb-4 text-cyan-400 relative pb-2 
+              className="text-2xl font-bold mb-4 text-black relative pb-2 
               after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-1 after:bg-cyan-400 after:animate-underline"
             >
               Quick Connect
             </h3>
             <div className="space-y-4">
-              <div className="bg-gray-700 p-4 rounded-md hover:bg-gray-600 transition-colors duration-300">
+              <div className="bg-[#525e75] p-4 rounded-md hover:bg-gray-600 transition-colors duration-300">
                 <h4 className="font-semibold mb-2">Head Office</h4>
                 <address className="not-italic text-sm">
                   <p>1 A For Security</p>
@@ -175,7 +175,7 @@ const Footer = () => {
                     Tel:{" "}
                     <a
                       href="tel:02089800000"
-                      className="text-cyan-400 hover:text-cyan-300"
+                      className="text-white hover:text-cyan-300"
                     >
                       02089802934
                     </a>
@@ -184,7 +184,7 @@ const Footer = () => {
                     Email:{" "}
                     <a
                       href="info@NerdishrtSecurity.uk"
-                      className="text-cyan-400 hover:text-cyan-300"
+                      className="text-white hover:text-cyan-300"
                     >
                       info@NerdishrtSecurity.uk
                     </a>
@@ -198,7 +198,7 @@ const Footer = () => {
                     to="/"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-gray-700 rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Feedback
                   </Link>
@@ -208,7 +208,7 @@ const Footer = () => {
                     to="courses"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-gray-700 rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Courses
                   </Link>
@@ -218,17 +218,17 @@ const Footer = () => {
                     to="registration"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-gray-700 rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Registration
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="admin"
+                    to="/dashboard"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-gray-700 rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Admin
                   </Link>
@@ -239,7 +239,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-700 pt-6 mt-8 text-center">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm font-bold text-black">
             © {new Date().getFullYear()} NerdishrtSecurity. All rights reserved.
           </p>
         </div>

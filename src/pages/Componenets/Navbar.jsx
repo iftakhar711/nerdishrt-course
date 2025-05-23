@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { gsap } from "gsap";
-import {
-  FaBars,
-  FaTimes,
-  FaUser,
-  FaUserPlus,
-  FaSignInAlt,
-} from "react-icons/fa";
+import { FaBars, FaTimes, FaUser, FaUserPlus } from "react-icons/fa";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
@@ -15,15 +9,16 @@ import { AuthContext } from "../../Context/AuthContext";
 gsap.registerPlugin(ScrollTrigger);
 
 const Navbar = () => {
-  const navbarRef = useRef(null);
   const logoRef = useRef(null);
   const menuRef = useRef(null);
   const homeRef = useRef(null);
   const coursesRef = useRef(null);
+  const blogRef = useRef(null);
   const faqRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const mobileHomeRef = useRef(null);
   const mobileCoursesRef = useRef(null);
+  const mobileBlogRef = useRef(null);
   const mobileFaqRef = useRef(null);
   const toggleRef = useRef(null);
   const authBtnRef = useRef(null);
@@ -39,6 +34,7 @@ const Navbar = () => {
     const menuItems = [
       homeRef.current,
       coursesRef.current,
+      blogRef.current,
       faqRef.current,
       authBtnRef.current,
     ];
@@ -97,29 +93,29 @@ const Navbar = () => {
     });
 
     // Navbar scroll effect
-    ScrollTrigger.create({
-      trigger: document.body,
-      start: "top top",
-      end: "max",
-      onUpdate: (self) => {
-        const scroll = self.scroll();
-        if (scroll > 50) {
-          gsap.to(navbarRef.current, {
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-            duration: 0.3,
-          });
-        } else {
-          gsap.to(navbarRef.current, {
-            backgroundColor: "rgba(15, 23, 42, 1)",
-            backdropFilter: "blur(0px)",
-            boxShadow: "none",
-            duration: 0.3,
-          });
-        }
-      },
-    });
+    // ScrollTrigger.create({
+    //   trigger: document.body,
+    //   start: "top top",
+    //   end: "max",
+    //   onUpdate: (self) => {
+    //     const scroll = self.scroll();
+    //     if (scroll > 50) {
+    //       gsap.to(navbarRef.current, {
+    //         backgroundColor: "rgba(15, 23, 42, 0.95)",
+    //         backdropFilter: "blur(10px)",
+    //         boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+    //         duration: 0.3,
+    //       });
+    //     } else {
+    //       gsap.to(navbarRef.current, {
+    //         backgroundColor: "rgba(15, 23, 42, 1)",
+    //         backdropFilter: "blur(0px)",
+    //         boxShadow: "none",
+    //         duration: 0.3,
+    //       });
+    //     }
+    //   },
+    // });
 
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
@@ -131,6 +127,7 @@ const Navbar = () => {
     const mobileItems = [
       mobileHomeRef.current,
       mobileCoursesRef.current,
+      mobileBlogRef.current,
       mobileFaqRef.current,
     ];
 
@@ -166,7 +163,7 @@ const Navbar = () => {
   const handleHover = (ref) => {
     gsap.to(ref, {
       y: -5,
-      color: "#60a5fa",
+      color: "#525e75",
       duration: 0.5,
       ease: "elastic.out(1, 0.5)",
       scale: 1.05,
@@ -208,7 +205,7 @@ const Navbar = () => {
   const handleHoverOut = (ref) => {
     gsap.to(ref, {
       y: 0,
-      color: "#ffffff",
+      color: "#000000",
       scale: 1,
       duration: 0.8,
       ease: "elastic.out(1, 0.5)",
@@ -234,18 +231,15 @@ const Navbar = () => {
   // };
 
   return (
-    <nav
-      ref={navbarRef}
-      className="w-full bg-slate-900 text-white py-4 px-6  z-50 transition-colors duration-300"
-    >
+    <nav className="w-full bg-gray-50 text-black py-4 px-6  z-50 ">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <Link
           to="/"
           ref={logoRef}
-          className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+          className="text-2xl font-bold bg-[#6a4c93] bg-clip-text text-transparent"
         >
-          SecurityTraining
+          Nerdishrt
         </Link>
 
         {/* Enhanced Desktop Menu */}
@@ -273,6 +267,18 @@ const Navbar = () => {
               <span className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></span>
               <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-400 transform -translate-x-1/2 group-hover:w-3/4 transition-all duration-500"></span>
             </Link>
+            {/* <Link
+              to="/blogs"
+              ref={blogRef}
+              onMouseEnter={() => handleHover(blogRef.current)}
+              onMouseLeave={() => handleHoverOut(blogRef.current)}
+              className="relative cursor-pointer group px-4 py-2 rounded-lg"
+            >
+              <span className="relative font-mono font-bold z-10">Blogs</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></span>
+              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-400 transform -translate-x-1/2 group-hover:w-3/4 transition-all duration-500"></span>
+            </Link> */}
+
             <Link
               to="/faq"
               ref={faqRef}
@@ -316,10 +322,10 @@ const Navbar = () => {
                 </button> */}
                 <button
                   onClick={handleRegister}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full hover:shadow-lg transition-all duration-300 group"
+                  className="flex items-center space-x-2 px-4 py-2 bg-[#6a4c93] rounded-full hover:shadow-lg transition-all duration-300 group"
                 >
                   <FaUserPlus className="text-white" />
-                  <span className="font-medium">Register</span>
+                  <span className="font-medium text-white">Register</span>
                   <span className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                 </button>
               </>
@@ -340,7 +346,7 @@ const Navbar = () => {
       {/* Mobile Menu - Explicit Items */}
       <div
         ref={mobileMenuRef}
-        className="md:hidden z-50 fixed top-0 right-0 h-full w-64 bg-slate-800 shadow-xl transform translate-x-full opacity-0"
+        className="md:hidden z-50 fixed top-0 right-0 h-full w-64 bg-gray-50  shadow-xl transform translate-x-full opacity-0"
       >
         <div className="p-6 h-full flex flex-col">
           <div className="flex justify-between items-center mb-8">
@@ -369,6 +375,14 @@ const Navbar = () => {
             >
               Courses
             </Link>
+            {/* <Link
+              to="/blogs"
+              ref={mobileBlogRef}
+              className="text-xl border-b font-mono font-bold border-slate-700 pb-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Blogs
+            </Link> */}
             <Link
               to="/faq"
               ref={mobileFaqRef}
@@ -417,10 +431,10 @@ const Navbar = () => {
                     handleRegister();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all duration-300"
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#6a4c93] rounded-lg hover:shadow-lg transition-all duration-300"
                 >
                   <FaUserPlus className="text-white" />
-                  <span className="font-medium">Register</span>
+                  <span className="font-medium text-white">Register</span>
                 </button>
               </>
             )}

@@ -221,13 +221,13 @@ const SIATrainingHero = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-gradient-to-b from-blue-900 to-blue-700 text-white min-h-screen p-6 relative overflow-hidden"
+      className="bg-[#525e75] text-white min-h-screen p-6 relative overflow-hidden"
     >
       {/* Floating particles will be injected here via JS */}
 
       <div className="container mx-auto max-w-6xl relative z-10">
         {/* Original Heading - Unchanged */}
-        <div className="relative overflow-hidden bg-blue-800 rounded-lg mb-8">
+        <div className="relative overflow-hidden bg-[#6a4c93] rounded-lg mb-8">
           <div
             className="whitespace-nowrap inline-block will-change-transform py-4 animate-marquee"
             style={{ animationDuration: "5s" }} // Reduced from 20s to 10s for double speed
@@ -269,7 +269,7 @@ const SIATrainingHero = () => {
               <div className="flex flex-col h-full">
                 <div className="flex items-center mb-4">
                   {feature.icon}
-                  <h3 className="ml-4 text-lg font-bold text-amber-600 uppercase">
+                  <h3 className="ml-4 text-lg font-bold text-[#6a4c93] uppercase">
                     {feature.title}
                   </h3>
                 </div>

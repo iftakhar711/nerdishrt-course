@@ -191,29 +191,29 @@ const TestimonialSlider = () => {
   }, [isLoaded]);
 
   return (
-    <div className="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="bg-gray-50 py-8 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Enhanced Heading - Guaranteed Visible */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-4">
           <h1
             ref={headingRef}
-            className="text-4xl md:text-5xl font-extrabold mb-2"
+            className="text-3xl md:text-[44px] font-extrabold mb-2"
             style={{ opacity: 1, visibility: "visible" }}
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+            <span className="bg-clip-text text-transparent bg-[#6a4c93]">
               What Our Clients Say
             </span>
           </h1>
           <h2
             ref={subheadingRef}
-            className="text-2xl md:text-3xl mt-4 font-semibold text-gray-700"
+            className="text-xl md:text-2xl  font-semibold text-black"
             style={{ opacity: 1, visibility: "visible" }}
           >
             Reviews from Our Customers
           </h2>
           <div
             ref={underlineRef}
-            className="w-32 h-1.5 mx-auto bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full mt-8"
+            className="w-32 h-1 mx-auto bg-[#92ba92] rounded-full mt-7"
             style={{ transform: "scaleX(0)" }}
           />
         </div>
