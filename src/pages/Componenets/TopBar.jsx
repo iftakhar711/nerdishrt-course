@@ -1,13 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import {
-  FaPhone,
-  FaEnvelope,
-  FaFacebook,
-  FaTwitter,
-  FaInstagram,
-  FaLinkedin,
-} from "react-icons/fa";
+import { FaPhone, FaEnvelope } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 
 const TopBar = () => {
   const topBarRef = useRef(null);
@@ -90,23 +84,35 @@ const TopBar = () => {
               href="tel:+1234567890"
               className="text-sm font-mono hover:text-blue-300 transition-colors"
             >
-              +1(234)567-890
+              +44 7496 897738
             </a>
           </div>
           <div className="flex items-center" ref={emailRef}>
             <FaEnvelope className="mr-2 text-blue-300 text-lg" />
             <a
-              href="mailto:info@example.com"
-              className="text-sm font-serif hover:text-blue-300 transition-colors"
+              href="https://mail.google.com/mail/u/0/?hl=en#inbox"
+              target="_blank"
+              className="text-sm font-serif hover:text-blue-300 transition-colors "
             >
-              info@example.com
+              info@nerdishert.com.uk
             </a>
           </div>
         </div>
 
+        {/* <div>
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-400 transition-colors"
+          >
+            1st floor 35 Vicarage lane East Ham E6 6DQ
+          </a>
+        </div> */}
+
         {/* Social Links */}
         <div className="flex space-x-5">
-          <a
+          {/* <a
             href="https://facebook.com"
             target="_blank"
             rel="noopener noreferrer"
@@ -132,6 +138,13 @@ const TopBar = () => {
             ref={addToSocialRefs}
           >
             <FaInstagram className="text-xl" />
+          </a> */}
+          <FaLocationDot className="mr-2  text-lg"></FaLocationDot>
+          <a
+            className="text-sm font-semibold font-mono hover:text-blue-300 transition-colors"
+            ref={addToSocialRefs}
+          >
+            1st floor,35 Vicarage lane,East Ham,E6 6DQ
           </a>
         </div>
       </div>

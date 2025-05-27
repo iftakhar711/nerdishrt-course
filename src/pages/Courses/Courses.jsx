@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import coursesImg from "../../assets/coursesimg.jpeg";
 
 const Courses = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hoveredCourse, setHoveredCourse] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -39,50 +39,143 @@ const Courses = () => {
     ...new Set(courses.map((course) => course.category).filter(Boolean)),
   ];
 
-  // Icons for different course categories
   const top = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
+
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      {/* Hero Section */}
-      <div className="relative h-[250px] lg:h-[300px] overflow-hidden bg-indigo-50">
-        <div className="absolute inset-0">
-          <img
-            className="w-full h-full object-cover blur-sm scale-110"
-            src={coursesImg}
-            alt="Professional Training Courses Background"
-          />
-          <div className="absolute inset-0 bg-indigo-500 opacity-20"></div>
+    <div className="min-h-screen bg-gray-50 font-sans overflow-hidden">
+      {/* Hero Section with Parallax Effect */}
+      <div className="relative h-[350px] overflow-hidden bg-[#525e75]">
+        {/* Particle background */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(30)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-br from-[#6a4c93] to-[#92ba92] opacity-20"
+              style={{
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 10 + 10}s linear infinite`,
+                animationDelay: `${Math.random() * 5}s`,
+              }}
+            />
+          ))}
         </div>
-        <div className="relative max-w-7xl mx-auto py-12 px-4 sm:py-16 sm:px-6 lg:px-8 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl lg:text-5xl">
-              <span className="block">Elevate Your Skills</span>
-              <span className="block text-indigo-200">Discover Courses</span>
+
+        {/* Holographic grid */}
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `
+        linear-gradient(rgba(120, 147, 138, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 147, 138, 0.2) 1px, transparent 1px)
+      `,
+            backgroundSize: "40px 40px",
+            maskImage:
+              "radial-gradient(ellipse at center, black 30%, transparent 70%)",
+          }}
+        />
+
+        {/* Floating 3D card elements */}
+        <div className="absolute -right-20 top-1/4 w-64 h-96 rounded-xl bg-gradient-to-br from-[#92ba92]/30 to-[#f1ddbf]/30 backdrop-blur-lg border border-[#92ba92]/20 shadow-2xl transform rotate-12 translate-x-20 opacity-80" />
+        <div className="absolute -left-20 bottom-1/4 w-72 h-80 rounded-xl bg-gradient-to-br from-[#78938a]/30 to-[#92ba92]/30 backdrop-blur-lg border border-[#f1ddbf]/20 shadow-2xl transform -rotate-12 -translate-x-20 opacity-80" />
+
+        {/* Main content */}
+        <div className="relative h-full flex items-center justify-center px-6">
+          <div className="max-w-5xl w-full text-center">
+            {/* Badges row */}
+            <div className="flex flex-wrap justify-center gap-2 lg:gap-3 mb-3">
+              {[
+                { icon: "✓", text: "100% Practical Learning" },
+                { icon: "★", text: "4.9/5 Satisfaction" },
+                { icon: "🕒", text: "Flexible Scheduling" },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-[#6a4c93]/30 to-[#78938a]/30 backdrop-blur-md border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all duration-300"
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.text}
+                </div>
+              ))}
+            </div>
+
+            {/* Headline with animated gradient */}
+            <h1 className=" text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight ">
+              <span className="block text-white mb-1">Transform Your</span>
+              <span
+                className="block text-transparent bg-clip-text bg-[length:200%_200%]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg, #f1ddbf, #92ba92, #92ba92, #f1ddbf, #f1ddbf)",
+                  animation: "gradientFlow 8s ease infinite",
+                }}
+              >
+                Career Path
+              </span>
             </h1>
-            <p className="mt-3 font-serif font-semibold text-sm lg:text-lg text-black sm:mt-4">
-              Explore our curated selection of professional training courses.
+
+            {/* Paragraph with animated border */}
+
+            <p className="text-sm md:text-lg lg:text-xl font-serif text-white/90 leading-relaxed px-4 py-2">
+              Master in-demand skills with our industry-proven curriculum
+              designed for real-world success.
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Filters Section */}
-      <div className="py-8 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-2 justify-center">
+        {/* Animations */}
+        <style jsx>{`
+          @keyframes float {
+            0% {
+              transform: translateY(0) translateX(0);
+            }
+            50% {
+              transform: translateY(-100px) translateX(20px);
+            }
+            100% {
+              transform: translateY(0) translateX(0);
+            }
+          }
+          @keyframes gradientFlow {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
+          }
+          @keyframes borderRotate {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
+      </div>
+      {/* Filters Section with Glass Morphism */}
+      <div id="courses" className="py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap gap-3 justify-center mb-12">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveFilter(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                   activeFilter === category
                     ? "bg-[#6a4c93] text-white shadow-lg"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    : "bg-white text-[#525e75] hover:bg-gray-100 shadow-md"
                 }`}
               >
                 {category}
@@ -93,108 +186,129 @@ const Courses = () => {
       </div>
 
       {/* Course Cards Section */}
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
+      <div className="pb-24 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {loading ? (
             <div className="text-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+              <div className="inline-flex items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6a4c93] mx-auto"></div>
+                <span className="ml-4 text-[#525e75] font-medium">
+                  Loading courses...
+                </span>
+              </div>
             </div>
           ) : error ? (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 max-w-md mx-auto rounded">
-              <p>Error loading courses: {error}</p>
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 max-w-md mx-auto rounded-lg shadow">
+              <p className="font-medium">Error loading courses:</p>
+              <p className="text-sm mt-1">{error}</p>
             </div>
           ) : filteredCourses.length === 0 ? (
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 max-w-md mx-auto rounded">
-              <p>No courses found for this category</p>
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 max-w-md mx-auto rounded-lg shadow">
+              <p className="font-medium">No courses found for this category</p>
+              <button
+                onClick={() => setActiveFilter("All")}
+                className="mt-2 text-sm text-yellow-700 hover:underline"
+              >
+                View all courses
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCourses.map((course) => (
                 <div
                   key={course._id}
-                  className="w-full rounded-xl shadow-lg overflow-hidden relative cursor-pointer snap-start shrink-0 py-6 px-6 bg-white flex flex-col items-center justify-center gap-4 transition-all duration-300 group"
+                  onMouseEnter={() => setHoveredCourse(course._id)}
+                  onMouseLeave={() => setHoveredCourse(null)}
+                  className="relative overflow-hidden rounded-2xl shadow-xl transition-all duration-500 hover:shadow-2xl"
+                  style={{
+                    transform:
+                      hoveredCourse === course._id
+                        ? "translateY(-8px)"
+                        : "none",
+                    background:
+                      "linear-gradient(to bottom right, #ffffff, #f9f9f9)",
+                  }}
                 >
-                  {/* Decorative star element */}
-                  <div className="absolute -left-[40%] top-0 group-hover:rotate-12 transition-all duration-300 group-hover:scale-150 opacity-30">
-                    <div className="flex gap-1">
-                      <svg
-                        strokeLinejoin="round"
-                        strokeLinecap="round"
-                        strokeWidth="1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="fill-indigo-300 rotate-[24deg]"
-                        height="200"
-                        width="200"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Category label */}
-                  <div className="para uppercase text-center leading-none z-10">
-                    <p className="text-black font-semibold text-xs">
-                      {course.category || "Professional"}
-                    </p>
-                    <p className="font-bold text-xl tracking-wider text-gray-700">
-                      {course.title}
-                    </p>
-                  </div>
-
-                  {/* Course icon/image */}
-
-                  <img
-                    src={course.imageUrl}
-                    className="w-[160px] aspect-square bg-indigo-50 rounded-full flex items-center justify-center text-5xl  z-10"
-                    alt=""
-                  />
-
-                  {/* Decorative background circle with course icon */}
-                  <div className="absolute rounded-full bg-indigo-50 z-0 left-1/2 top-[30%] h-[110%] w-[110%] -translate-x-1/2 group-hover:top-[58%] transition-all duration-300 flex items-center justify-center">
-                    <span className="text-[120px] opacity-30 text-indigo-300">
-                      {course.icon}
-                    </span>
-                  </div>
-
-                  {/* Course details */}
-                  <div className="w-full flex flex-col gap-2 z-10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="h-4 w-4 text-gray-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-sm text-gray-600">
-                          {course.duration || "Flexible"}
-                        </span>
-                      </div>
-                      <span className="font-bold text-indigo-600">
-                        £{course.fee}
+                  {/* Course Image with Overlay */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={course.imageUrl}
+                      alt={course.title}
+                      className="w-full h-full object-cover transition-transform duration-700"
+                      style={{
+                        transform:
+                          hoveredCourse === course._id
+                            ? "scale(1.05)"
+                            : "scale(1)",
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#525e75] to-transparent opacity-70"></div>
+                    <div className="absolute bottom-4 left-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#f1ddbf] text-[#525e75]">
+                        {course.category || "Professional"}
                       </span>
                     </div>
                   </div>
 
-                  {/* Action button */}
-                  <div className="w-full mt-4 z-10">
-                    <Link
-                      onClick={top}
-                      to={`/courses/${course.slug}`}
-                      className="block w-full text-center uppercase font-semibold text-xs px-4 py-2 rounded-full bg-[#6a4c93] text-white hover:bg-[#92ba92] transition-colors"
-                    >
-                      View Details
-                    </Link>
+                  {/* Course Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-[#525e75] mb-2 line-clamp-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                      {course.shortDescription ||
+                        "Premium professional training course"}
+                    </p>
+
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <svg
+                          className="w-5 h-5 text-[#78938a]"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="text-sm text-gray-600">
+                          {course.duration || "Flexible schedule"}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-[#6a4c93]">
+                        £{course.fee}
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100">
+                      <Link
+                        onClick={top}
+                        to={`/courses/${course.slug}`}
+                        className="w-full flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-[#6a4c93] hover:from-[#5a3c83] hover:to-[#678378] shadow-md transition-all duration-300 transform hover:scale-[1.02]"
+                      >
+                        Enroll Now
+                        <svg
+                          className="ml-2 -mr-1 w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
+
+                  {/* Hover Ribbon Effect */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#f1ddbf] via-[#92ba92] to-[#6a4c93] opacity-0 transition-opacity duration-300"
+                    style={{ opacity: hoveredCourse === course._id ? 1 : 0 }}
+                  ></div>
                 </div>
               ))}
             </div>

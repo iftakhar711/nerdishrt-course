@@ -13,6 +13,7 @@ const CourseForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
+    short_description: "",
     icon: "⭐",
     fee: "",
     duration: "",
@@ -154,6 +155,7 @@ const CourseForm = () => {
     const {
       title,
       slug,
+      short_description,
       fee,
       duration,
       session,
@@ -165,6 +167,8 @@ const CourseForm = () => {
 
     if (!title.trim()) newErrors.title = "Title is required";
     if (!slug.trim()) newErrors.slug = "Slug is required";
+    if (!short_description.trim())
+      newErrors.short_description = "Short description is required";
     if (!fee || isNaN(fee)) newErrors.fee = "Valid Fee is required";
     if (!category) newErrors.category = "Category is required";
     if (!bgColorClass.trim())
@@ -203,14 +207,11 @@ const CourseForm = () => {
         faq: faqList.filter((faq) => faq.question.trim() || faq.answer.trim()),
       };
 
-      const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/courses",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch("http://localhost:5000/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -224,6 +225,7 @@ const CourseForm = () => {
       setFormData({
         title: "",
         slug: "",
+        short_description: "",
         icon: "⭐",
         bgColorClass: "from-blue-400 to-blue-600",
         fee: "",
@@ -300,7 +302,7 @@ const CourseForm = () => {
                 className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.title ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="e.g., Level 2 Security Guard Course"
+                placeholder="Add Course"
               />
               {errors.title && (
                 <p className="text-red-500 text-sm mt-1">{errors.title}</p>
@@ -320,10 +322,33 @@ const CourseForm = () => {
                 className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.slug ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="e.g., security-guard-course-level-2"
+                placeholder="add-course"
               />
               {errors.slug && (
                 <p className="text-red-500 text-sm mt-1">{errors.slug}</p>
+              )}
+            </div>
+
+            {/* Short Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Short Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="short_description"
+                value={formData.short_description}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.short_description
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+                placeholder=""
+              />
+              {errors.short_description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.short_description}
+                </p>
               )}
             </div>
 

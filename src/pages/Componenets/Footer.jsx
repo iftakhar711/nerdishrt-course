@@ -166,18 +166,17 @@ const Footer = () => {
             </h3>
             <div className="space-y-4">
               <div className="bg-[#525e75] p-4 rounded-md hover:bg-gray-600 transition-colors duration-300">
-                <h4 className="font-semibold mb-2">Head Office</h4>
-                <address className="not-italic text-sm">
-                  <p>1 A For Security</p>
-                  <p>2nd Floor, 465A Bethnal Green Road</p>
-                  <p>London E2 9QW</p>
+                <h4 className="font-bold font mb-2">Head Office</h4>
+                <address className="not-italic text-md font-sans font-semibold">
+                  <p>1st floor, 35 Vicarage lane</p>
+                  <p>East Ham, E6 6DQ</p>
                   <p className="mt-2">
                     Tel:{" "}
                     <a
                       href="tel:02089800000"
                       className="text-white hover:text-cyan-300"
                     >
-                      02089802934
+                      +44 7496 897738
                     </a>
                   </p>
                   <p>
@@ -186,7 +185,7 @@ const Footer = () => {
                       href="info@NerdishrtSecurity.uk"
                       className="text-white hover:text-cyan-300"
                     >
-                      info@NerdishrtSecurity.uk
+                      info@nerdishert.com.uk
                     </a>
                   </p>
                 </address>
@@ -198,7 +197,7 @@ const Footer = () => {
                     to="/"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#6a4c93] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Feedback
                   </Link>
@@ -208,7 +207,7 @@ const Footer = () => {
                     to="courses"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#6a4c93] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Courses
                   </Link>
@@ -218,7 +217,7 @@ const Footer = () => {
                     to="registration"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#6a4c93] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Registration
                   </Link>
@@ -228,7 +227,7 @@ const Footer = () => {
                     to="/dashboard"
                     onClick={top}
                     className="block w-full p-3 text-sm font-medium text-white text-center 
-                 bg-[#525e75] rounded-md hover:bg-cyan-500 transition-all duration-300"
+                 bg-[#6a4c93] rounded-md hover:bg-cyan-500 transition-all duration-300"
                   >
                     Admin
                   </Link>

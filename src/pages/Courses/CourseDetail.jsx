@@ -2,13 +2,22 @@ import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
+// Outline version
+import {
+  CurrencyEuroIcon,
+  CalendarIcon,
+  ClockIcon,
+  AcademicCapIcon,
+} from "@heroicons/react/24/outline";
 
 const CourseDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user, refreshUserData } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState("overview");
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,8 +32,9 @@ const CourseDetail = () => {
 
   const heroRef = useRef(null);
   const modalRef = useRef(null);
+  const successModalRef = useRef(null);
   const enrollButtonRef = useRef(null);
-  const courseIconRef = useRef(null);
+  const confettiRef = useRef(null);
 
   const locations = [
     "BARKING",
@@ -47,9 +57,7 @@ const CourseDetail = () => {
     "BETHNAL GREEN",
   ];
 
-  // Get appropriate icon for course
-
-  // GSAP-like animation helper
+  // Animation helpers
   const animateElement = (
     element,
     properties,
@@ -71,28 +79,40 @@ const CourseDetail = () => {
     };
   };
 
-  // Animate course icon
-  const animateCourseIcon = () => {
-    if (!courseIconRef.current) return;
+  // Confetti animation
+  const triggerConfetti = () => {
+    if (!confettiRef.current) return;
 
-    const icon = courseIconRef.current;
-    animateElement(icon, { transform: "scale(1.1) rotate(5deg)" }, 0.2);
+    const colors = ["#FF5252", "#FFD740", "#64FFDA", "#448AFF", "#B388FF"];
+    const container = confettiRef.current;
+    container.innerHTML = "";
 
-    setTimeout(() => {
-      animateElement(icon, { transform: "scale(1) rotate(0)" }, 0.3);
-    }, 200);
-  };
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement("div");
+      confetti.style.position = "absolute";
+      confetti.style.width = `${Math.random() * 10 + 5}px`;
+      confetti.style.height = `${Math.random() * 10 + 5}px`;
+      confetti.style.backgroundColor =
+        colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = `${Math.random() * 100}%`;
+      confetti.style.top = "-10px";
+      confetti.style.borderRadius = "50%";
+      confetti.style.opacity = "0";
+      confetti.style.transform = "translateY(0) rotate(0deg)";
 
-  // Animate enroll button
-  const animateEnrollButton = () => {
-    if (!enrollButtonRef.current) return;
+      container.appendChild(confetti);
 
-    const button = enrollButtonRef.current;
-    animateElement(button, { transform: "scale(0.95)" }, 0.1);
-
-    setTimeout(() => {
-      animateElement(button, { transform: "scale(1)" }, 0.2);
-    }, 100);
+      // Animate each confetti piece
+      setTimeout(() => {
+        confetti.style.opacity = "1";
+        confetti.style.transform = `translateY(${
+          window.innerHeight
+        }px) rotate(${Math.random() * 360}deg)`;
+        confetti.style.transition = `all ${
+          Math.random() * 3 + 2
+        }s cubic-bezier(0.1, 0.8, 0.3, 1)`;
+      }, i * 50);
+    }
   };
 
   // Modal animations
@@ -103,8 +123,6 @@ const CourseDetail = () => {
     modal.style.opacity = "0";
     modal.style.transform = "translateY(20px) scale(0.98)";
     modal.style.transition = "none";
-
-    // Force reflow
     modal.getBoundingClientRect();
 
     animateElement(
@@ -136,6 +154,54 @@ const CourseDetail = () => {
     }, 200);
   };
 
+  // Success modal animations
+  const animateSuccessModalIn = useCallback(() => {
+    if (!successModalRef.current) return;
+
+    const modal = successModalRef.current;
+    modal.style.opacity = "0";
+    modal.style.transform = "scale(0.8)";
+    modal.style.transition = "none";
+    modal.getBoundingClientRect();
+
+    animateElement(
+      modal,
+      {
+        opacity: "1",
+        transform: "scale(1)",
+      },
+      0.4,
+      "cubic-bezier(0.175, 0.885, 0.32, 1.4)"
+    );
+
+    triggerConfetti();
+  }, []);
+
+  const animateSuccessModalOut = (callback) => {
+    if (!successModalRef.current) return callback();
+
+    const modal = successModalRef.current;
+    animateElement(
+      modal,
+      {
+        opacity: "0",
+        transform: "scale(0.9)",
+      },
+      0.2
+    );
+
+    setTimeout(() => {
+      callback();
+    }, 200);
+  };
+
+  // Clean up body overflow on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   // Parallax effect for hero section
   useEffect(() => {
     const handleScroll = () => {
@@ -155,15 +221,12 @@ const CourseDetail = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(
-          `https://nerdishrt-course-server.onrender.com/courses/${slug}`
-        );
+        const response = await fetch(`http://localhost:5000/courses/${slug}`);
         if (!response.ok) {
           throw new Error("Failed to fetch course details");
         }
         const data = await response.json();
         setCourse(data.course);
-        console.log(data.course);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -190,11 +253,26 @@ const CourseDetail = () => {
     } else {
       document.body.style.overflow = "auto";
     }
-  }, [showEnrollModal, showLoginPrompt, animateModalIn]);
-  const handleEnrollClick = () => {
-    animateEnrollButton();
-    animateCourseIcon();
 
+    if (showSuccessModal) {
+      document.body.style.overflow = "hidden";
+      animateSuccessModalIn();
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [
+    showEnrollModal,
+    showLoginPrompt,
+    showSuccessModal,
+    animateModalIn,
+    animateSuccessModalIn,
+  ]);
+
+  const handleEnrollClick = () => {
     if (isAuthenticated()) {
       setFormData({
         name: user.name || "",
@@ -210,6 +288,7 @@ const CourseDetail = () => {
   };
 
   const handleLoginRedirect = () => {
+    document.body.style.overflow = "auto"; // Reset overflow before navigating
     navigate("/login", { state: { from: `/courses/${slug}` } });
   };
 
@@ -217,6 +296,14 @@ const CourseDetail = () => {
     animateModalOut(() => {
       setShowEnrollModal(false);
       setShowLoginPrompt(false);
+      document.body.style.overflow = "auto";
+    });
+  };
+
+  const closeSuccessModal = () => {
+    animateSuccessModalOut(() => {
+      setShowSuccessModal(false);
+      document.body.style.overflow = "auto";
     });
   };
 
@@ -255,6 +342,7 @@ const CourseDetail = () => {
         setIsEnrolled(true);
         closeModals();
         await refreshUserData();
+        setShowSuccessModal(true);
       } else {
         console.error("Enrollment failed:", data.message);
       }
@@ -263,19 +351,34 @@ const CourseDetail = () => {
     }
   };
 
+  const Top = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center space-y-4">
-          <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
-            <div className="absolute inset-2 rounded-full border-4 border-blue-300 border-b-transparent animate-spin-reverse"></div>
+          <div className="relative w-24 h-24 mx-auto">
+            <div
+              className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"
+              style={{ animationDuration: "1.5s" }}
+            ></div>
+            <div
+              className="absolute inset-2 rounded-full border-4 border-blue-300 border-b-transparent animate-spin-reverse"
+              style={{ animationDuration: "2s" }}
+            ></div>
           </div>
-          <h3 className="text-xl font-semibold text-gray-700">
+          <h3 className="text-2xl font-semibold text-gray-800">
             Loading Course
           </h3>
-          <p className="text-gray-500">Getting everything ready for you...</p>
+          <p className="text-gray-500 max-w-md mx-auto">
+            Preparing an exceptional learning experience for you...
+          </p>
         </div>
       </div>
     );
@@ -284,9 +387,9 @@ const CourseDetail = () => {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center max-w-md mx-4 p-6 bg-white rounded-2xl shadow-xl">
-          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-red-100 rounded-full text-red-500 text-3xl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center max-w-md mx-4 p-8 bg-white rounded-2xl shadow-xl transform transition-all hover:scale-[1.01]">
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-red-100 rounded-full text-red-500 text-4xl">
             ⚠️
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -307,9 +410,9 @@ const CourseDetail = () => {
   // Course not found
   if (!course) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center max-w-md mx-4 p-6 bg-white rounded-2xl shadow-xl">
-          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-500 text-3xl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center max-w-md mx-4 p-8 bg-white rounded-2xl shadow-xl transform transition-all hover:scale-[1.01]">
+          <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center bg-blue-100 rounded-full text-blue-500 text-4xl">
             🔍
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -339,75 +442,60 @@ const CourseDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-14">
-      {/* Hero Section with Parallax Effect */}
+      {/* Hero Section */}
       <div
         ref={heroRef}
-        className="relative overflow-hidden bg-[#525E75] text-white"
+        className="relative overflow-hidden bg-gray-900 text-white h-96 md:h-[32rem]"
         style={{
           clipPath: "polygon(0 0, 100% 0, 100% 90%, 0 100%)",
-          paddingBottom: "8rem",
           marginBottom: "-4rem",
         }}
       >
-        {/* Animated background elements */}
-        <div className="absolute inset-0 opacity-10">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-white"
-              style={{
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 10 + 5}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.3 + 0.1,
-                transform: `scale(${Math.random() + 0.5})`,
-              }}
-            />
-          ))}
-        </div>
+        {/* Background image with overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-gray-800 opacity-90"></div>
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{
+            backgroundImage: `url(${course.imageUrl})`,
+          }}
+        ></div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-16 pb-24">
-          <div className="flex flex-col lg:flex-row items-start gap-8">
-            {/* Course Icon */}
-            <div
-              ref={courseIconRef}
-              className="bg-white bg-opacity-20 p-5 rounded-2xl backdrop-blur-sm cursor-pointer hover:bg-opacity-30 transition-all"
-              onClick={animateCourseIcon}
-              style={{
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <span className="text-5xl">{course.icon}</span>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
+          <div className="max-w-4xl">
+            <div className="inline-block px-4 py-2 bg-white text-black bg-opacity-20 rounded-full mb-6 text-sm font-medium backdrop-blur-sm border border-white border-opacity-30">
+              {course.category || "Professional Training"}
             </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+              {course.title}
+            </h1>
+            <p className=" text-sm md:text-md lg:text-lg  text-gray-300 mb-8 max-w-3xl">
+              {course.short_description ||
+                "Master the skills you need to advance your career with our comprehensive training program."}
+            </p>
 
-            {/* Course Info */}
-            <div className="flex-1">
-              <div className="max-w-3xl">
-                <div className="inline-block px-3 py-1 bg-white text-black bg-opacity-20 rounded-full mb-4 text-sm font-medium backdrop-blur-sm">
-                  {course.category || "Professional Training"}
-                </div>
-                <h1 className="text-4xl sm:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-                  {course.title}
-                </h1>
-                {/* <p className="text-xl text-blue-100 mb-6">
-                  {course.short_description}
-                </p> */}
-
-                <div className="flex flex-wrap gap-3">
-                  <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
-                    ⏱️ {course.duration}
-                  </span>
-                  <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
-                    💰 {course.fee}
-                  </span>
-                  {/* {course.certification && (
-                    <span className="inline-flex items-center px-4 py-2 text-black bg-white bg-opacity-10 rounded-xl text-sm font-medium backdrop-blur-sm border border-white border-opacity-20">
-                      🏆 {course.certification}
-                    </span>
-                  )} */}
-                </div>
+            <div className="flex flex-wrap gap-4">
+              <div className=" flex font-semibold  items-center justify-center gap-1 text-white  bg-opacity-10 backdrop-blur-sm px-4 py-2 ">
+                <CalendarIcon className="w-4 h-4"></CalendarIcon>
+                <span>{course.duration}</span>
               </div>
+              <div className=" flex font-semibold  items-center justify-center gap-1 text-white  bg-opacity-10 backdrop-blur-sm px-4 py-2 ">
+                <CurrencyEuroIcon className="w-4 h-4"></CurrencyEuroIcon>
+                <span>{course.fee}</span>
+              </div>
+              <div className=" flex font-semibold  items-center justify-center gap-1 text-white  bg-opacity-10 backdrop-blur-sm px-4 py-2 ">
+                <ClockIcon className="w-4 h-4"></ClockIcon>
+                <span>{course.session}</span>
+              </div>
+              <div className=" flex font-semibold  items-center justify-center gap-1 text-white  bg-opacity-10 backdrop-blur-sm px-4 py-2 ">
+                <AcademicCapIcon className="w-4 h-4"></AcademicCapIcon>
+                <span>{course.teachingMethod}</span>
+              </div>
+              {course.certification && (
+                <div className=" flex font-semibold  items-center justify-center gap-1 text-white  bg-opacity-10 backdrop-blur-sm px-4 py-2 ">
+                  <CalendarIcon className="w-4 h-4"></CalendarIcon>
+                  <span>{course.certification}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -418,85 +506,116 @@ const CourseDetail = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Course Details */}
           <div className="lg:w-2/3 space-y-8">
-            {/* Course Overview */}
-            <div
-              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
-              style={{
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
-              }}
-            >
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl text-blue-600 text-xl">
-                    📚
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                    Course Overview
-                  </h2>
-                </div>
-                <div className="prose max-w-none text-gray-600 space-y-4">
-                  <p>{course.description}</p>
-
-                  <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-                    What You'll Achieve
-                  </h3>
-                  <ul className="space-y-3">
-                    {course.outcomes?.map((outcome, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="text-blue-500 mt-1">✓</span>
-                        <span>{outcome}</span>
-                      </li>
-                    )) || (
-                      <li className="text-gray-500  font-semibold">
-                        Officially recognised Security Industry Authority (SIA)
-                        licence
-                      </li>
-                    )}
-                  </ul>
-
-                  <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">
-                    Entry Requirements
-                  </h3>
-                  <p className="text-gray-500  font-semibold">
-                    {course.entryRequirement || "No specific requirements"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Course Content */}
+            {/* Course Tabs */}
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-xl text-green-600 text-xl">
-                    🎯
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                    Course Content
-                  </h2>
-                </div>
-
-                <div className="space-y-4">
-                  {Array.isArray(course.content) ? (
-                    course.content.map((item, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
-                            {index + 1}
-                          </div>
-                          <h3 className="font-medium text-gray-800">{item}</h3>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      Detailed curriculum coming soon
-                    </div>
+              <div className="border-b border-gray-200">
+                <nav className="flex -mb-px">
+                  <button
+                    onClick={() => setActiveTab("overview")}
+                    className={`py-4 px-6 text-center border-b-2 font-medium text-sm flex-1 ${
+                      activeTab === "overview"
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  {course.content && (
+                    <button
+                      onClick={() => setActiveTab("curriculum")}
+                      className={`py-4 px-6 text-center border-b-2 font-medium text-sm flex-1 ${
+                        activeTab === "curriculum"
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      Curriculum
+                    </button>
                   )}
-                </div>
+                  {course.faq && course.faq.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab("faq")}
+                      className={`py-4 px-6 text-center border-b-2 font-medium text-sm flex-1 ${
+                        activeTab === "faq"
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      FAQ
+                    </button>
+                  )}
+                </nav>
+              </div>
+
+              <div className="p-6 sm:p-8">
+                {/* Overview Tab */}
+                {activeTab === "overview" && (
+                  <div className="space-y-6">
+                    <div className="prose max-w-none text-black ">
+                      <div className="space-y-4 text-md font-serif leading-relaxed">
+                        {course.overview
+                          .split(/\n\n|\.\s+/) // You can adjust the regex depending on your separator
+                          .map((paragraph, index) => (
+                            <p key={index}>
+                              {paragraph.trim() +
+                                (index !==
+                                course.overview.split(/\n\n|\.\s+/).length - 1
+                                  ? "."
+                                  : "")}
+                            </p>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Curriculum Tab */}
+                {activeTab === "curriculum" && (
+                  <div className="space-y-6">
+                    {Array.isArray(course.content) ? (
+                      <div className="space-y-4">
+                        {course.content.map((item, index) => (
+                          <div
+                            key={index}
+                            className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg font-medium">
+                                {index + 1}
+                              </div>
+                              <h3 className="font-medium text-gray-800">
+                                {item}
+                              </h3>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        Detailed curriculum coming soon
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* FAQ Tab */}
+                {activeTab === "faq" && (
+                  <div className="space-y-6">
+                    {course.faq.map((item, index) => (
+                      <div key={index} className="group">
+                        <div className="p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                          <h3 className="font-semibold text-lg text-gray-800 group-hover:text-blue-600 transition-colors">
+                            {item.question}
+                          </h3>
+                          <p className="text-gray-600 mt-2">{item.answer}</p>
+                        </div>
+                        {index < course.faq.length - 1 && (
+                          <div className="h-px bg-gray-100 w-full"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -505,7 +624,7 @@ const CourseDetail = () => {
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                 <div className="p-6 sm:p-8">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-xl">
+                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-2xl">
                       📦
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
@@ -517,9 +636,9 @@ const CourseDetail = () => {
                     {course.modules.map((module, index) => (
                       <div
                         key={index}
-                        className="border-l-4 border-blue-500 pl-5 py-2"
+                        className="border-l-4 border-blue-500 pl-5 py-2 group hover:bg-gray-50 transition-colors rounded-lg"
                       >
-                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
                           {module.title}
                         </h3>
                         <p className="text-gray-600 mb-3">
@@ -537,52 +656,15 @@ const CourseDetail = () => {
                 </div>
               </div>
             )}
-
-            {/* FAQ Section */}
-            {course.faq && course.faq.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="p-6 sm:p-8">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 flex items-center justify-center bg-yellow-100 rounded-xl text-yellow-600 text-xl">
-                      ❓
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                      Frequently Asked Questions
-                    </h2>
-                  </div>
-
-                  <div className="space-y-4">
-                    {course.faq.map((item, index) => (
-                      <div key={index} className="group">
-                        <div className="p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                          <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                            {item.question}
-                          </h3>
-                          <p className="text-gray-600 mt-2">{item.answer}</p>
-                        </div>
-                        {index < course.faq.length - 1 && (
-                          <div className="h-px bg-gray-100 w-full"></div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sidebar */}
           <div className="lg:w-1/3 space-y-6 lg:sticky lg:top-6 lg:h-fit lg:pb-8">
             {/* Enrollment Card */}
-            <div
-              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
-              style={{
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
-              }}
-            >
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transform transition-all hover:shadow-2xl">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl text-blue-600 text-xl">
+                  <div className="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl text-blue-600 text-2xl">
                     ✏️
                   </div>
                   <h2 className="text-2xl font-bold text-gray-800">
@@ -591,11 +673,11 @@ const CourseDetail = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-[#525E75] p-5 rounded-xl text-white">
+                  <div className="bg-[#525e75] p-5 rounded-xl text-white">
                     <p className="text-sm opacity-90">Total Course Fee</p>
                     <p className="text-3xl font-bold mb-1">£{course.fee}</p>
                     {course.discount && (
-                      <p className="text-sm bg-white bg-opacity-20 inline-block px-2 py-1 rounded-md">
+                      <p className="text-sm bg-white bg-opacity-20 inline-block px-3 py-1 rounded-md">
                         {course.discount}
                       </p>
                     )}
@@ -605,10 +687,10 @@ const CourseDetail = () => {
                     ref={enrollButtonRef}
                     onClick={handleEnrollClick}
                     disabled={isEnrolled}
-                    className={`w-full py-4 rounded-xl  font-bold text-lg transition-all duration-300 ${
+                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
                       isEnrolled
-                        ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg cursor-not-allowed"
-                        : "bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white shadow-lg hover:shadow-xl active:scale-95"
+                        ? "bg-gradient-to-r from-green-600 to-green-500  text-white shadow-lg cursor-not-allowed"
+                        : "bg-[#6a4c93]  hover:bg-sky-600 text-white shadow-lg hover:shadow-xl active:scale-[0.98]"
                     }`}
                   >
                     {isEnrolled ? (
@@ -630,30 +712,14 @@ const CourseDetail = () => {
                         Enrolled Successfully
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="8.5" cy="7" r="4"></circle>
-                          <line x1="20" y1="8" x2="20" y2="14"></line>
-                          <line x1="23" y1="11" x2="17" y2="11"></line>
-                        </svg>
-                        Enroll Now
+                      <span className="flex items-center justify-center  gap-2">
+                        📝 Enroll Now
                       </span>
                     )}
                   </button>
 
-                  <div className="space-y-3 text-sm text-gray-600">
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <div className="space-y-4 text-sm text-gray-600">
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="flex items-center gap-2">
                         <span className="text-gray-400">💳</span>
                         <span>SIA License Fee:</span>
@@ -662,7 +728,7 @@ const CourseDetail = () => {
                         £{course.siaLicenceFee || "Not applicable"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="flex items-center gap-2">
                         <span className="text-gray-400">💸</span>
                         <span>Additional Charges:</span>
@@ -671,7 +737,7 @@ const CourseDetail = () => {
                         £{course.additionalCharges || "None"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-2">
+                    <div className="flex justify-between items-center py-3">
                       <span className="flex items-center gap-2">
                         <span className="text-gray-400">📅</span>
                         <span>Next Start Date:</span>
@@ -686,10 +752,10 @@ const CourseDetail = () => {
             </div>
 
             {/* Requirements Card */}
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transform transition-all hover:shadow-2xl">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-xl text-green-600 text-xl">
+                  <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-xl text-green-600 text-2xl">
                     ✅
                   </div>
                   <h2 className="text-2xl font-bold text-gray-800">
@@ -699,14 +765,18 @@ const CourseDetail = () => {
 
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 text-green-600 rounded-full mt-0.5 flex-shrink-0">
+                      ✓
+                    </span>
                     <span className="text-gray-700">
                       Minimum age: {course.minimum_age || "18"} years
                     </span>
                   </li>
                   {course.entryRequirement && (
                     <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 text-green-600 rounded-full mt-0.5 flex-shrink-0">
+                        ✓
+                      </span>
                       <span className="text-gray-700">
                         {course.entryRequirement}
                       </span>
@@ -714,7 +784,9 @@ const CourseDetail = () => {
                   )}
                   {course.materials && (
                     <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 text-green-600 rounded-full mt-0.5 flex-shrink-0">
+                        ✓
+                      </span>
                       <span className="text-gray-700">
                         Required materials: {course.materials}
                       </span>
@@ -726,10 +798,10 @@ const CourseDetail = () => {
 
             {/* Benefits Card */}
             {course.benefits && course.benefits.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transform transition-all hover:shadow-2xl">
                 <div className="p-6 sm:p-8">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-xl">
+                    <div className="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-xl text-purple-600 text-2xl">
                       🌟
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800">
@@ -743,7 +815,9 @@ const CourseDetail = () => {
                         key={index}
                         className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
                       >
-                        <span className="text-purple-500 mt-0.5">•</span>
+                        <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-100 text-purple-600 rounded-full mt-0.5 flex-shrink-0">
+                          •
+                        </span>
                         <span className="text-gray-700">{benefit}</span>
                       </li>
                     ))}
@@ -757,7 +831,7 @@ const CourseDetail = () => {
 
       {/* Enroll Modal */}
       {showEnrollModal && (
-        <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div
             ref={modalRef}
             className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all"
@@ -984,7 +1058,7 @@ const CourseDetail = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1010,7 +1084,7 @@ const CourseDetail = () => {
 
       {/* Login Prompt Modal */}
       {showLoginPrompt && (
-        <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div
             ref={modalRef}
             className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all"
@@ -1043,7 +1117,7 @@ const CourseDetail = () => {
                   </h3>
                   <button
                     onClick={closeModals}
-                    className="text-white hover:text-gray-200   transition-colors text-2xl p-1 -mr-1"
+                    className="text-white hover:text-gray-200 transition-colors text-2xl p-1 -mr-1"
                     aria-label="Close modal"
                   >
                     &times;
@@ -1069,7 +1143,7 @@ const CourseDetail = () => {
                 <div className="space-y-3">
                   <button
                     onClick={handleLoginRedirect}
-                    className="w-full py-4 bg-[#795E9E] hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1097,7 +1171,11 @@ const CourseDetail = () => {
 
                   <Link
                     to="/registration"
-                    onClick={closeModals}
+                    onClick={() => {
+                      closeModals();
+                      Top();
+                      document.body.style.overflow = "auto";
+                    }}
                     className="w-full py-3 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl font-medium transition-all shadow-sm hover:shadow active:scale-95 flex items-center justify-center gap-2"
                   >
                     <svg
@@ -1119,6 +1197,110 @@ const CourseDetail = () => {
                     Create New Account
                   </Link>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal with Confetti */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div
+            ref={successModalRef}
+            className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all relative"
+            style={{
+              opacity: 0,
+              transform: "scale(0.8)",
+            }}
+          >
+            {/* Confetti container */}
+            <div
+              ref={confettiRef}
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{ zIndex: -1 }}
+            ></div>
+
+            <div className="relative z-10">
+              {/* Modal header with gradient */}
+              <div className="bg-gradient-to-r from-green-600 to-green-500 p-6 text-white">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Congratulations!
+                  </h3>
+                  <button
+                    onClick={closeSuccessModal}
+                    className="text-white hover:text-gray-200 transition-colors text-2xl p-1 -mr-1"
+                    aria-label="Close modal"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <p className="text-green-100 mt-1 text-sm">
+                  You've successfully enrolled in the course
+                </p>
+              </div>
+
+              {/* Modal body */}
+              <div className="p-6 space-y-6 text-center">
+                <div className="w-24 h-24 mx-auto flex items-center justify-center bg-green-100 text-green-600 rounded-full text-5xl">
+                  🎉
+                </div>
+
+                <h4 className="text-2xl font-bold text-gray-800">
+                  Enrollment Confirmed!
+                </h4>
+
+                <p className="text-gray-600">
+                  You're now enrolled in{" "}
+                  <span className="font-semibold text-gray-800">
+                    {course.title}
+                  </span>
+                  . We've sent the details to your email.
+                </p>
+
+                <div className="bg-green-50 p-4 rounded-xl border border-green-200 text-left">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700">Course:</span>
+                    <span className="font-medium">{course.title}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700">Amount Paid:</span>
+                    <span className="font-medium">£{course.fee}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700">Location:</span>
+                    <span className="font-medium">{formData.location}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={closeSuccessModal}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2"
+                >
+                  Continue to Dashboard
+                </button>
+
+                <p className="text-sm text-gray-500">
+                  Need help?{" "}
+                  <a href="#" className="text-blue-600 hover:underline">
+                    Contact support
+                  </a>
+                </p>
               </div>
             </div>
           </div>
