@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import BlogCard from "../Blogs/BlogCrad";
+import BlogCard from "../Blogs/BlogCard";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 
@@ -11,7 +11,9 @@ const FeaturedBlogs = () => {
   useEffect(() => {
     const fetchFeaturedBlogs = async () => {
       try {
-        const response = await fetch("http://localhost:5000/blogs?limit=3");
+        const response = await fetch(
+          "https://nerdishrt-course-server-production.up.railway.app/blogs/featured"
+        );
         const data = await response.json();
         setFeaturedBlogs(data);
       } catch (error) {
@@ -32,6 +34,13 @@ const FeaturedBlogs = () => {
     );
   }
 
+  const Top = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="py-8 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
@@ -46,7 +55,7 @@ const FeaturedBlogs = () => {
           </h2>
           <div
             className="w-32 h-1 mt-2 mx-auto bg-[#92ba92] rounded-full"
-            style={{ transform: "scaleX(0)", transformOrigin: "left center" }}
+            // style={{ transform: "scaleX(0)", transformOrigin: "left center" }}
           />
         </div>
 
@@ -55,18 +64,15 @@ const FeaturedBlogs = () => {
             <BlogCard
               key={blog.slug}
               blog={blog}
-              onReadMore={(slug) => (window.location.href = `/blog/${slug}`)}
+              onReadMore={(slug) => (window.location.href = `/blogs/${slug}`)}
             />
           ))}{" "}
-          :{" "}
-          <h1 className="text-xl md:text-[24px] font-extrabold mx-auto">
-            Blogs will come soon
-          </h1>
         </div>
 
         <div className="text-center mt-8">
           <Link
             to="/blogs"
+            onClick={top}
             className="inline-flex items-center px-4 py-3  border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-[#6a4c93]  hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 hover:shadow-lg"
           >
             View All Articles

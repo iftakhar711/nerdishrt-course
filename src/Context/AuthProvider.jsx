@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       if (token && userEmail) {
         try {
           const response = await fetch(
-            `https://nerdishrt-course-server.onrender.com/users/${userEmail}`
+            `https://nerdishrt-course-server-production.up.railway.app/users/${userEmail}`
           );
           const data = await response.json();
 
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     const userEmail = localStorage.getItem("userEmail");
     if (userEmail) {
       const response = await fetch(
-        `https://nerdishrt-course-server.onrender.com/users/${userEmail}`
+        `https://nerdishrt-course-server-production.up.railway.app/users/${userEmail}`
       );
       const data = await response.json();
       if (response.ok) {

@@ -14,10 +14,11 @@ import {
 
 const navLinks = [
   { name: "Dashboard", icon: <FiHome />, path: "/dashboard" },
-  { name: "Users", icon: <FiUsers />, path: "/dashboard/users" },
   { name: "Add Course", icon: <FiBook />, path: "/dashboard/addcourse" },
-  { name: "Calendar", icon: <FiCalendar />, path: "/dashboard/calendar" },
-  { name: "Settings", icon: <FiSettings />, path: "/dashboard/courseslist" },
+  { name: "Course List", icon: <FiSettings />, path: "/dashboard/courseslist" },
+  { name: "Add Blog", icon: <FiUsers />, path: "/dashboard/addblog" },
+  { name: "Blog List", icon: <FiCalendar />, path: "/dashboard/bloglist" },
+  { name: "Testimonial", icon: <FiCalendar />, path: "/dashboard/testimonial" },
 ];
 
 const DashboardLayout = () => {

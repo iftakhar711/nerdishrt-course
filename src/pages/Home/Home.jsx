@@ -4,8 +4,8 @@ import Roadmap from "../Componenets/Roadmap";
 import CourseList from "../Componenets/CourseList";
 import SIATrainingHero from "../Componenets/SIATrainingHero";
 import Testimonial from "../Componenets/Testimonial";
-// import BlogList from "../Componenets/BlogList";
-import ConstructionModal from "../Componenets/ConstructionModal";
+import BlogList from "../Componenets/BlogList";
+// import ConstructionModal from "../Componenets/ConstructionModal";
 
 const Home = () => {
   return (
@@ -14,11 +14,10 @@ const Home = () => {
       <Roadmap></Roadmap>
       <CourseList></CourseList>
 
-      <ConstructionModal />
-      {/* Your other content */}
+      {/* <ConstructionModal /> */}
 
       <SIATrainingHero></SIATrainingHero>
-      {/* <BlogList></BlogList> */}
+      <BlogList></BlogList>
       <Testimonial></Testimonial>
     </>
   );

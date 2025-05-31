@@ -12,7 +12,7 @@ const Courses = () => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          "https://nerdishrt-course-server.onrender.com/courses"
+          "https://nerdishrt-course-server-production.up.railway.app/courses"
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -255,10 +255,14 @@ const Courses = () => {
                     <h3 className="text-xl font-bold text-[#525e75] mb-2 line-clamp-2">
                       {course.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {course.shortDescription ||
-                        "Premium professional training course"}
-                    </p>
+                    <div className=" flex gap-2">
+                      <p className="text-gray-600 text-sm mb-4 font-bold  line-clamp-3">
+                        {course.icon || "Professional training course"}
+                      </p>
+                      <p className="text-gray-600 text-sm mb-4 font-bold  line-clamp-3">
+                        Professional training course
+                      </p>
+                    </div>
 
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">

@@ -92,7 +92,7 @@ const Registration = () => {
 
     try {
       const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/register",
+        "https://nerdishrt-course-server-production.up.railway.app/register",
         {
           method: "POST",
           headers: {

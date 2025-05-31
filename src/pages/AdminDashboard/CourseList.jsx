@@ -38,7 +38,7 @@ const CourseList = () => {
   const confirmDelete = async () => {
     try {
       const response = await fetch(
-        `https://nerdishrt-course-server.onrender.com/courses/${courseToDelete.slug}`,
+        `https://nerdishrt-course-server-production.up.railway.app/courses/${courseToDelete.slug}`,
         {
           method: "DELETE",
         }

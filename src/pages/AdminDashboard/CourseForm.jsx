@@ -207,11 +207,14 @@ const CourseForm = () => {
         faq: faqList.filter((faq) => faq.question.trim() || faq.answer.trim()),
       };
 
-      const response = await fetch("http://localhost:5000/courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "https://nerdishrt-course-server-production.up.railway.app/courses",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

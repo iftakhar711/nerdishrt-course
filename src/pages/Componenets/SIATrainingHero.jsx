@@ -15,7 +15,7 @@ const SIATrainingHero = () => {
         if (cardPosition < screenPosition) {
           card.style.opacity = "1";
           card.style.transform = "translateY(0)";
-          card.style.transition = `all 0.6s ease-out ${index * 0.15}s`;
+          card.style.transition = `all 0.6s ease-out ${index * 0.1}s`;
         }
       });
     };
@@ -244,13 +244,15 @@ const SIATrainingHero = () => {
         {/* Original Paragraph - Unchanged */}
         <div className="text-lg md:text-xl mb-8 leading-relaxed mx-auto text-center container font-serif">
           <p>
-            1 A For Security is the leading provider of the SIA Door Supervisor
-            training, security guard training, and SIA CCTV training. As an
-            approved SIA (Security Industry Authority) training provider since
-            2012, we've trained over ten thousand satisfied learners who
-            successfully achieved their qualifications. After completing your
-            course, we assist with employment by providing experience and
-            connecting you with our associate security companies.
+            nerdishrt Security is a leading provider of SIA Door Supervisor,
+            Security Guard, and CCTV Operator training in the UK. As an approved
+            SIA (Security Industry Authority) training provider since 2012,
+            we’ve proudly trained over ten thousand successful candidates who
+            have gone on to earn their official qualifications. At nerdishrt
+            Security, we go beyond training — we help launch your security
+            career by offering hands-on experience and connecting you with our
+            trusted network of associate security companies for job
+            opportunities.
           </p>
         </div>
 

@@ -221,7 +221,9 @@ const CourseDetail = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/courses/${slug}`);
+        const response = await fetch(
+          `https://nerdishrt-course-server-production.up.railway.app/courses/${slug}`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch course details");
         }
@@ -320,7 +322,7 @@ const CourseDetail = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/enroll",
+        "https://nerdishrt-course-server-production.up.railway.app/enroll",
         {
           method: "POST",
           headers: {

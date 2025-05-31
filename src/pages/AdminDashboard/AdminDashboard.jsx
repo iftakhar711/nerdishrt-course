@@ -22,7 +22,7 @@ const AdminDashboard = () => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(
-          "https://nerdishrt-course-server.onrender.com/admin/users"
+          "https://nerdishrt-course-server-production.up.railway.app/admin/users"
         );
         if (!response.ok) {
           throw new Error("Failed to fetch users");

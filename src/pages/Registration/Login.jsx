@@ -83,7 +83,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "https://nerdishrt-course-server.onrender.com/login",
+        "https://nerdishrt-course-server-production.up.railway.app/login",
         {
           method: "POST",
           headers: {

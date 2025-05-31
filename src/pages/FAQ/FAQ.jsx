@@ -13,54 +13,73 @@ const FAQ = () => {
     "🚑 Emergency First Aid": [
       {
         q: "What certification will I receive?",
-        a: "OFQUAL-regulated Level 3 Emergency First Aid at Work (EFAW) certification",
+        a: "Upon completing this course, you will be awarded the OFQUAL-regulated Level 3 Emergency First Aid at Work (EFAW) certificate. This qualification is widely recognized throughout the UK and is suitable for individuals who want to act as first responders in workplace emergencies. It demonstrates that you are competent in handling life-threatening situations and administering first aid until professional help arrives.",
       },
       {
         q: "Course duration?",
-        a: "1-day intensive training (7 contact hours)",
+        a: "The course is delivered over a single day with a total of 7 guided learning hours. Despite its short duration, it is packed with essential practical and theoretical knowledge, ensuring that you walk away with strong, applicable first aid skills that can make a real difference in emergencies.",
       },
       {
         q: "Validity period?",
-        a: "3 years before requiring refresher training",
+        a: "The certification is valid for a period of 3 years from the date of issue. After this period, learners are encouraged to undertake a refresher course to stay updated with the latest first aid procedures and to retain the necessary skills required in critical situations.",
+      },
+      {
+        q: "Is practical first aid included?",
+        a: "Yes, the course includes a variety of hands-on exercises, including CPR on adult mannequins, how to use an AED (Automated External Defibrillator), applying bandages, managing choking, and placing a casualty in the recovery position. These practical activities are essential for building real-life confidence.",
       },
     ],
     "🔥 Fire Marshal Training": [
       {
         q: "Training compliance?",
-        a: "Meets Regulatory Reform (Fire Safety) Order 2005 requirements",
+        a: "Our Fire Marshal Training course fully complies with the requirements of the Regulatory Reform (Fire Safety) Order 2005. This ensures that individuals who are responsible for fire safety in their workplace or premises are legally competent and meet all the current health and safety legislation standards.",
       },
       {
         q: "Practical exercises?",
-        a: "Live fire extinguisher training with CO2 and water units",
+        a: "Participants engage in live fire extinguisher practice using CO2 and water extinguishers under supervision. This hands-on experience allows learners to build confidence in using extinguishers effectively and safely while understanding the differences between fire classes and corresponding extinguishing methods.",
       },
       {
         q: "Assessment method?",
-        a: "Written test + practical scenario evaluation",
+        a: "Assessment is carried out through a combination of a multiple-choice theory exam and participation in practical scenarios. These methods ensure the learner not only understands fire safety procedures but is also capable of implementing them confidently in a real-life emergency.",
+      },
+      {
+        q: "Who should take this course?",
+        a: "This course is ideal for anyone designated as a fire warden, marshal, or responsible person in the workplace. It is particularly beneficial for business owners, supervisors, facilities managers, and those in charge of health and safety who need to ensure fire evacuation plans are understood and executed effectively.",
       },
     ],
     "🛡️ Door Supervisor": [
       {
         q: "SIA exam included?",
-        a: "Yes, final day exam with physical intervention assessment",
+        a: "Yes, the course includes the official SIA-endorsed examinations. The final day of the course consists of a physical intervention assessment and multiple-choice exams. You must pass these assessments to receive your training qualification, which is required to apply for the SIA Door Supervisor License.",
       },
-      { q: "Minimum age requirement?", a: "18 years with valid ID proof" },
+      {
+        q: "Minimum age requirement?",
+        a: "To enroll in the Door Supervisor course, candidates must be at least 18 years old and present valid proof of identification such as a passport, driver’s license, or biometric residence permit. This is to ensure eligibility for the SIA license application process, which is required to legally work in the private security sector.",
+      },
       {
         q: "License application help?",
-        a: "Full SIA application guidance included",
+        a: "We guide all students through the full SIA licensing process after completing the course. From gathering the necessary documents to submitting your application online and preparing for identity and criminal record checks, our team is here to ensure you don’t face any hurdles in getting licensed.",
+      },
+      {
+        q: "What topics are covered?",
+        a: "The course covers a broad range of essential subjects including conflict management, physical intervention skills, the roles and responsibilities of door supervisors, the law surrounding the use of force, search procedures, drug awareness, dealing with emergencies, and effective communication. The goal is to fully prepare learners for safe and professional conduct while on duty.",
       },
     ],
     "📹 CCTV Operator": [
       {
         q: "Course accreditation?",
-        a: "National CCTV Certification Scheme (NCCS)",
+        a: "The CCTV Operator course is accredited under the National CCTV Certification Scheme (NCCS) and meets SIA licensing requirements. It ensures candidates are trained to a nationally recognized standard and are legally eligible to work in CCTV monitoring roles across a range of industries including public space surveillance, retail, and corporate security.",
       },
       {
         q: "Software training?",
-        a: "Includes training on Digital Watchdog & Hikvision systems",
+        a: "Trainees receive practical instruction on leading CCTV systems including Digital Watchdog and Hikvision. This hands-on software training equips learners with the knowledge to operate surveillance systems, conduct playback reviews, manage footage storage, and maintain security logs—vital skills for any professional CCTV operator.",
       },
       {
         q: "Job placement help?",
-        a: "Free access to our security industry job board",
+        a: "We offer access to our internal security job board featuring vacancies from our network of trusted employers. Additionally, our career support team helps with CV writing, interview preparation, and matching your profile with job openings to increase your chances of quick employment after course completion.",
+      },
+      {
+        q: "What job roles can I apply for?",
+        a: "Upon certification, you are qualified to apply for a wide range of surveillance roles, including control room operator, mobile surveillance, shopping centre CCTV monitoring, transport and infrastructure surveillance, and private business security monitoring. These roles are in demand and offer a great entry point into the security industry.",
       },
     ],
   };
@@ -102,7 +121,7 @@ const FAQ = () => {
   };
 
   return (
-    <div className="min-h-screen py-20 px-6 bg-gradient-to-b from-[#141e61] to-[#3c5eff] text-white">
+    <div className="min-h-screen py-20 px-6 bg-[#525e75] text-white">
       <div className="max-w-6xl mx-auto">
         <h1
           ref={headingRef}
@@ -155,7 +174,7 @@ const FAQ = () => {
                     />
                   </div>
                   <div
-                    className={`overflow-hidden transition-all text-slate-300 ${
+                    className={`overflow-hidden transition-all text-[#f1ddbf] font-medium lg:font-bold ${
                       openIndex === index ? "max-h-40 mt-3" : "max-h-0"
                     }`}
                   >

@@ -22,7 +22,7 @@ const DashboardBlogList = () => {
     const fetchBlogs = async () => {
       try {
         const response = await fetch(
-          "https://nerdishrt-course-server.vercel.app/blogs"
+          "https://nerdishrt-course-server-production.up.railway.app/blogs"
         );
         const data = await response.json();
         setBlogs(data);
@@ -39,7 +39,7 @@ const DashboardBlogList = () => {
   const handleDelete = async () => {
     try {
       await fetch(
-        `https://nerdishrt-course-server.onrender.com/blogs/${deleteModal.blogId}`,
+        `https://nerdishrt-course-server-production.up.railway.app/blogs/${deleteModal.blogId}`,
         {
           method: "DELETE",
         }
@@ -106,7 +106,7 @@ const DashboardBlogList = () => {
                   </div>
                   <div className="ml-4 flex-shrink-0 flex space-x-2">
                     <Link
-                      to={`/blog/${blog.slug}`}
+                      to={`/blogs/${blog.slug}`}
                       target="_blank"
                       className="p-2 rounded-full text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-600"
                       title="View"

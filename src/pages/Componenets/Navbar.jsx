@@ -267,7 +267,7 @@ const Navbar = () => {
               <span className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></span>
               <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-400 transform -translate-x-1/2 group-hover:w-3/4 transition-all duration-500"></span>
             </Link>
-            {/* <Link
+            <Link
               to="/blogs"
               ref={blogRef}
               onMouseEnter={() => handleHover(blogRef.current)}
@@ -277,7 +277,7 @@ const Navbar = () => {
               <span className="relative font-mono font-bold z-10">Blogs</span>
               <span className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></span>
               <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-400 transform -translate-x-1/2 group-hover:w-3/4 transition-all duration-500"></span>
-            </Link> */}
+            </Link>
 
             <Link
               to="/faq"
@@ -298,7 +298,7 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={handleAuthAction}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full hover:shadow-lg transition-all duration-300 group"
+                  className="flex items-center text-white space-x-2 px-4 py-2 bg-[#6a4c93] rounded-full hover:shadow-lg transition-all duration-300 group"
                 >
                   <FaUser className="text-white" />
                   <span className="font-medium">Profile</span>
@@ -375,14 +375,14 @@ const Navbar = () => {
             >
               Courses
             </Link>
-            {/* <Link
+            <Link
               to="/blogs"
               ref={mobileBlogRef}
               className="text-xl border-b font-mono font-bold border-slate-700 pb-2"
               onClick={() => setIsMenuOpen(false)}
             >
               Blogs
-            </Link> */}
+            </Link>
             <Link
               to="/faq"
               ref={mobileFaqRef}

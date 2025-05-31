@@ -70,7 +70,7 @@ const Roadmap = () => {
         }
 
         // Animate next step after slight delay
-        setTimeout(() => animateStep(index + 1), 300);
+        setTimeout(() => animateStep(index + 1), 0.5);
       }, 500);
     };
 

@@ -16,11 +16,11 @@ import CourseForm from "../pages/AdminDashboard/CourseForm";
 import EditCourseForm from "../pages/AdminDashboard/EditCourseForm";
 import EditBlogForm from "../pages/AdminDashboard/EditBlogForm";
 import BlogDetail from "../pages/Blogs/BlogDetail";
-// import Blogs from "../pages/Blogs/Blogs";
+import Blogs from "../pages/Blogs/Blogs";
 import BlogList from "../pages/AdminDashboard/DashboardBlogList";
 import DashboardBlogList from "../pages/AdminDashboard/DashboardBlogList";
 // import NotFound from "../pages/Componenets/NotFound";
-import CommingSoon from "../pages/Componenets/CommingSoon";
+import TestimonialAdminPanel from "../pages/AdminDashboard/TestimonialAdminPanel";
 
 export const router = createBrowserRouter([
   {
@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/blogs",
-        element: <CommingSoon></CommingSoon>,
+        element: <Blogs></Blogs>,
       },
       {
         path: "/blogs/:slug",
@@ -109,6 +109,10 @@ export const router = createBrowserRouter([
           {
             path: "/dashboard/bloglist",
             element: <DashboardBlogList></DashboardBlogList>,
+          },
+          {
+            path: "/dashboard/Testimonial",
+            element: <TestimonialAdminPanel></TestimonialAdminPanel>,
           },
         ],
       },
